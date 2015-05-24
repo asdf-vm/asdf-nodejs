@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+
+install_nodejs() {
+  local install_type=$1
+  local version=$2
+  local install_path=$3
+
+  if [ "$TMPDIR" = "" ]; then
+    local tmp_download_dir=$(mktemp -d)
+  else
+    local tmp_download_dir=$TMPDIR
+  fi
+
+  local source_path=$(get_download_file_path $install_type $version $tmp_download_dir)
+  download_source_file $install_type $version $source_path
+
+  # running this in a subshell
+  # we don't want to disturb current working dir
+  (
+    if [ "$install_type" != "version" ]; then
+      tar zxf $source_path -C $install_path --strip-components=1 || exit 1
+      cd $install_path
+
+      local configure_options="$(construct_configure_options $install_path)"
+
+      ./configure $configure_options || exit 1
+      make
+      make install
+
+      if [ $? -ne 0 ]; then
+        rm -rf $install_path
+        exit 1
+      fi
+    else
+      tar zxf $source_path -C $install_path --strip-components=1 || exit 1
+    fi
+    mkdir -p $install_path/.npm
+  )
+}
+
+
+construct_configure_options() {
+  local install_path=$1
+
+  if [ "$NODEJS_CONFIGURE_OPTIONS" = "" ]; then
+    local configure_options="$(os_based_configure_options) --prefix=$install_path"
+
+    if [ "$NODEJS_EXTRA_CONFIGURE_OPTIONS" != "" ]; then
+      configure_options="$configure_options $NODEJS_EXTRA_CONFIGURE_OPTIONS"
+    fi
+  else
+    local configure_options="$NODEJS_CONFIGURE_OPTIONS --prefix=$install_path"
+  fi
+
+  echo "$configure_options"
+}
+
+
+os_based_configure_options() {
+  local operating_system=$(uname -a)
+  local configure_options=""
+
+  if [[ "$operating_system" =~ "x86_64" ]]; then
+    local cpu_type="x64"
+  else
+    local cpu_type="x86"
+  fi
+
+  configure_options="$configure_options --dest-cpu=$cpu_type"
+  echo $configure_options
+}
+
+
+download_source_file() {
+  local install_type=$1
+  local version=$2
+  local download_path=$3
+  local download_url=$(get_download_url $install_type $version)
+
+  curl -Lo $download_path -C - $download_url
+}
+
+
+get_download_file_path() {
+  local install_type=$1
+  local version=$2
+  local tmp_download_dir=$3
+
+
+  if [ "$install_type" = "version" ]; then
+    if [[ "$operating_system" =~ "x86_64" ]]; then
+      local cpu_type="x64"
+    else
+      local cpu_type="x86"
+    fi
+
+    if [[ "$operating_system" =~ "Darwin" ]]; then
+      local pkg_name="node-v${version}-darwin-${cpu_type}"
+    else # we'll assume it is linux
+      local pkg_name="node-v${version}-linux-${cpu_type}"
+    fi
+  else
+    local pkg_name="${version}.tar.gz"
+  fi
+
+  echo "$tmp_download_dir/$pkg_name"
+}
+
+
+get_download_url() {
+  local install_type=$1
+  local version=$2
+  local operating_system=$(uname -a)
+
+  if [ "$install_type" = "version" ]; then
+    if [[ "$operating_system" =~ "x86_64" ]]; then
+      local cpu_type="x64"
+    else
+      local cpu_type="x86"
+    fi
+
+    if [[ "$operating_system" =~ "Darwin" ]]; then
+      echo "http://nodejs.org/dist/v${version}/node-v${version}-darwin-${cpu_type}.tar.gz"
+    else # we'll assume it is linux
+      echo "http://nodejs.org/dist/v${version}/node-v${version}-linux-${cpu_type}.tar.gz"
+    fi
+  else
+    echo "https://github.com/joyent/node/archive/${version}.tar.gz"
+  fi
+}
+
+
+install_nodejs $@
