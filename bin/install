@@ -34,7 +34,10 @@ install_nodejs() {
     else
       tar zxf $source_path -C $install_path --strip-components=1 || exit 1
     fi
-    mkdir -p $install_path/.npm
+
+    mkdir -p $install_path/.npm/lib/node_modules/.hooks
+    cp $(dirname $(dirname $0))/npm-hooks/* $install_path/.npm/lib/node_modules/.hooks/
+    chmod +x $install_path/.npm/lib/node_modules/.hooks/*
   )
 }
 

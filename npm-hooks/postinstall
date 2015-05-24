@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+env | grep -i h | while read bin_env; do
+  IFS='=' read -a bin_env_parts <<< "$bin_env"
+  executable_name=${bin_env_parts[0]} | sed 's/npm_package_bin_//'
+
+  # if the executable has already been created
+  if [ -f $NPM_GLOBAL_PREFIX/bin/$executable_name ] && [ $executable_name != "" ]; then
+    asdf shim nodejs .npm/bin/$executable_name
+  fi
+done
