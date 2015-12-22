@@ -1,35 +1,5 @@
 #!/usr/bin/env bash
 
-env | grep -i npm_package_bin | while read bin_env; do
-
-  if [[ "$bin_env" =~ npm_package_bin* ]]; then
-
-    IFS='=' read -a bin_env_parts <<< "$bin_env"
-    executable_name="$(basename ${bin_env_parts[1]} .js)"
-
-    # if "node_modules" appears more than once in $PWD
-    # we can confirm that package being installed is sub-dependency
-    node_modules_count=$(echo $PWD | grep -o node_modules | wc -l)
-
-    # create shims only for globally installed pkg
-    if [ $node_modules_count -le 1 ]
-    then
-      is_npm_sub_dependency=false;
-    else
-      is_npm_sub_dependency=true;
-    fi
-
-
-    # if global install
-    #    and executable name is not empty
-    #    and is not a dependency of another package that is being installed as global
-    if [ "$npm_config_global" = "true" ] && \
-       [ "$executable_name" != "" ] && \
-       [ "$is_npm_sub_dependency" = "false" ]
-    then
-      asdf shim nodejs .npm/bin/$executable_name
-    fi
-
-  fi
-
-done
+asdf_nodejs_installs_path=$(dirname $(dirname $(dirname $NODE)))
+asdf_nodejs_plugin_path=${asdf_nodejs_installs_path/installs/plugins}
+bash $asdf_nodejs_plugin_path/bin/postinstall
