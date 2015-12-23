@@ -1,7 +1,7 @@
 #/usr/bin/env python
 import os, json;
 
-if os.environ['npm_config_global'] == 'true':
+if os.environ['npm_config_global'] != 'true':
     exit(0)
 
 package_json_path=os.environ['PWD'] + '/package.json'
