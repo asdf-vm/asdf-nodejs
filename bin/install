@@ -128,7 +128,7 @@ get_download_url() {
       echo "http://nodejs.org/dist/v${version}/node-v${version}-linux-${cpu_type}.tar.gz"
     fi
   else
-    echo "https://github.com/joyent/node/archive/${version}.tar.gz"
+    echo "https://github.com/nodejs/node/archive/${version}.tar.gz"
   fi
 }
 
