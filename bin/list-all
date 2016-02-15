@@ -1,32 +1,4 @@
 #!/usr/bin/env bash
 
-versions_list=(
-  5.5.0
-  5.4.1
-  5.4.0
-  5.3.0
-  5.2.0
-  5.1.1
-  5.1.0
-  5.0.0
-  4.2.3
-  4.2.2
-  4.2.1
-  4.2.0
-  4.1.2
-  4.1.1
-  4.1.0
-  4.0.0
-  0.12.7
-  0.12.3
-  0.12.2
-)
-
-versions=""
-
-for version in "${versions_list[@]}"
-do
-  versions="${versions} ${version}"
-done
-
-echo $versions
+echo $(curl --silent http://semver.io/node/versions \
+  | grep -E -v '^0\.([0-9]|10|11)\.')
