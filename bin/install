@@ -6,7 +6,7 @@ install_nodejs() {
   local install_path=$3
 
   if [ "$TMPDIR" = "" ]; then
-    local tmp_download_dir=$(mktemp -d)
+    local tmp_download_dir=$(mktemp -d -t nodejs_build_XXXXXX)
   else
     local tmp_download_dir=$TMPDIR
   fi
