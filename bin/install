@@ -17,6 +17,7 @@ install_nodejs() {
   # running this in a subshell
   # we don't want to disturb current working dir
   (
+    mkdir -p $install_path
     if [ "$install_type" != "version" ]; then
       tar zxf $source_path -C $install_path --strip-components=1 || exit 1
       cd $install_path
