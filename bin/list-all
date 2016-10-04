@@ -2,5 +2,5 @@
 
 echo $(
   curl --silent http://semver.io/node/versions \
-  | grep -E -v '^0\.([0-9]|10|11)\.'
+  | grep -E -v '^0\.([0-9])\.'
 )
