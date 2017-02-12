@@ -1,43 +1,49 @@
 #!/usr/bin/env bash
 
+set -o nounset -o pipefail -o errexit
+
+NODEJS_CHECK_SIGNATURES="${NODEJS_CHECK_SIGNATURES:-strict}"
+
 install_nodejs() {
   local install_type=$1
   local version=$2
   local install_path=$3
 
-  if [ "$TMPDIR" = "" ]; then
-    local tmp_download_dir=$(mktemp -d)
-  else
-    local tmp_download_dir=$TMPDIR
-  fi
+  local tmp_download_dir="$(mktemp --directory -t 'asdf_nodejs_XXXXXX')"
 
-  local source_path=$(get_download_file_path $install_type $version $tmp_download_dir)
-  download_source_file $install_type $version $source_path
+  ## Do this first as it is fast but could fail.
+  download_and_verify_checksums "$install_type" "$version" "$tmp_download_dir"
+
+  local archive_path="${tmp_download_dir}/$(get_archive_file_name "$install_type" "$version")"
+  download_file "$(get_download_url "$install_type" "$version")" "${archive_path}"
+
+  verify_archive "$tmp_download_dir"
 
   # running this in a subshell
   # we don't want to disturb current working dir
   (
     if [ "$install_type" != "version" ]; then
-      tar zxf $source_path -C $install_path --strip-components=1 || exit 1
-      cd $install_path
+      tar zxf "$archive_path" -C "$install_path" --strip-components=1 || exit 1
+      cd "$install_path" || exit 1
 
-      local configure_options="$(construct_configure_options $install_path)"
+      local configure_options="$(construct_configure_options "$install_path")"
 
+      # shellcheck disable=SC2086
       ./configure $configure_options || exit 1
       make
       make install
 
       if [ $? -ne 0 ]; then
-        rm -rf $install_path
+        rm -rf "$install_path"
         exit 1
       fi
     else
-      tar zxf $source_path -C $install_path --strip-components=1 || exit 1
+      tar zxf "$archive_path" -C "$install_path" --strip-components=1 || exit 1
     fi
 
-    mkdir -p $install_path/.npm/lib/node_modules/.hooks
-    cp $(dirname $(dirname $0))/npm-hooks/* $install_path/.npm/lib/node_modules/.hooks/
-    chmod +x $install_path/.npm/lib/node_modules/.hooks/*
+    mkdir -p "$install_path/.npm/lib/node_modules/.hooks"
+    cp "$(dirname "$(dirname "$0")")"/npm-hooks/* "$install_path/.npm/lib/node_modules/.hooks/"
+    chmod +x "$install_path"/.npm/lib/node_modules/.hooks/*
   )
 }
 
@@ -45,92 +51,167 @@ install_nodejs() {
 construct_configure_options() {
   local install_path=$1
 
-  if [ "$NODEJS_CONFIGURE_OPTIONS" = "" ]; then
-    local configure_options="$(os_based_configure_options) --prefix=$install_path"
+  if [ -z "${NODEJS_CONFIGURE_OPTIONS:-}" ]; then
+    local configure_options="--dest-cpu=$(get_nodejs_machine_hardware_name)"
 
-    if [ "$NODEJS_EXTRA_CONFIGURE_OPTIONS" != "" ]; then
-      configure_options="$configure_options $NODEJS_EXTRA_CONFIGURE_OPTIONS"
+    if [ "${NODEJS_EXTRA_CONFIGURE_OPTIONS:-}" != "" ]; then
+      configure_options="$configure_options ${NODEJS_EXTRA_CONFIGURE_OPTIONS:-}"
     fi
   else
-    local configure_options="$NODEJS_CONFIGURE_OPTIONS --prefix=$install_path"
+    local configure_options="${NODEJS_CONFIGURE_OPTIONS:-}"
   fi
+
+  configure_options="$configure_options --prefix=$install_path"
 
   echo "$configure_options"
 }
 
 
-os_based_configure_options() {
-  local operating_system=$(uname -a)
-  local configure_options=""
+get_nodejs_machine_hardware_name() {
+  local machine_hardware_name=$(uname --machine)
 
-  if [[ "$operating_system" =~ "x86_64" ]]; then
-    local cpu_type="x64"
-  else
-    local cpu_type="x86"
-  fi
+  case "$machine_hardware_name" in
+    'x86_64') local cpu_type="x64";;
+    'i686') local cpu_type="x86";;
+    *) local cpu_type="$machine_hardware_name";;
+  esac
 
-  configure_options="$configure_options --dest-cpu=$cpu_type"
-  echo $configure_options
+  echo "$cpu_type"
 }
 
 
-download_source_file() {
-  local install_type=$1
-  local version=$2
-  local download_path=$3
-  local download_url=$(get_download_url $install_type $version)
+download_file() {
+  local download_url="$1"
+  local download_path="$2"
 
-  curl -Lo $download_path -C - $download_url
+  curl -Lo "$download_path" -C - "$download_url"
 }
 
 
-get_download_file_path() {
-  local install_type=$1
-  local version=$2
-  local tmp_download_dir=$3
-
+get_archive_file_name() {
+  local install_type="$1"
+  local version="$2"
 
   if [ "$install_type" = "version" ]; then
-    if [[ "$operating_system" =~ "x86_64" ]]; then
-      local cpu_type="x64"
-    else
-      local cpu_type="x86"
-    fi
-
-    if [[ "$operating_system" =~ "Darwin" ]]; then
-      local pkg_name="node-v${version}-darwin-${cpu_type}"
-    else # we'll assume it is linux
-      local pkg_name="node-v${version}-linux-${cpu_type}"
-    fi
+    local pkg_name="node-v${version}-$(uname --kernel-name | tr '[:upper:]' '[:lower:]')-$(get_nodejs_machine_hardware_name)"
   else
-    local pkg_name="${version}.tar.gz"
+    local pkg_name="${version}"
   fi
 
-  echo "$tmp_download_dir/$pkg_name"
+  echo "${pkg_name}.tar.gz"
 }
 
 
 get_download_url() {
-  local install_type=$1
-  local version=$2
-  local operating_system=$(uname -a)
+  local install_type="$1"
+  local version="$2"
 
   if [ "$install_type" = "version" ]; then
-    if [[ "$operating_system" =~ "x86_64" ]]; then
-      local cpu_type="x64"
-    else
-      local cpu_type="x86"
-    fi
-
-    if [[ "$operating_system" =~ "Darwin" ]]; then
-      echo "https://nodejs.org/dist/v${version}/node-v${version}-darwin-${cpu_type}.tar.gz"
-    else # we'll assume it is linux
-      echo "https://nodejs.org/dist/v${version}/node-v${version}-linux-${cpu_type}.tar.gz"
-    fi
+    local download_url_base="https://nodejs.org/dist/v${version}"
   else
-    echo "https://github.com/nodejs/node/archive/${version}.tar.gz"
+    local download_url_base="https://github.com/nodejs/node/archive"
+  fi
+
+  echo "${download_url_base}/$(get_archive_file_name "$install_type" "$version")"
+}
+
+
+get_signed_checksum_download_url() {
+  local install_type=$1
+  local version=$2
+
+  if [ "$install_type" = "version" ]; then
+    echo "https://nodejs.org/dist/v${version}/SHASUMS256.txt.asc"
+  else
+    # Not implemented.
+    exit 1
   fi
 }
 
 
-install_nodejs $ASDF_INSTALL_TYPE $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
+download_and_verify_checksums() {
+  local install_type="$1"
+  local version="$2"
+  local tmp_download_dir="$3"
+
+  if [ "${NODEJS_CHECK_SIGNATURES}" == "no" ]; then
+    return 0
+  fi
+
+  ## Seems nodejs.org started with around 0.10.0 to release properly signed SHA2-256 checksum files.
+  if verlte "0.10.0" "$version"
+  then
+    echo "$tmp_download_dir"
+    local signed_checksum_file="$tmp_download_dir/SHASUMS256.txt.asc"
+    local signed_checksum_download_url="$(get_signed_checksum_download_url "$install_type" "$version")"
+    if [ -z "${signed_checksum_download_url}" ]; then
+      if [ "${NODEJS_CHECK_SIGNATURES}" == "strict" ]; then
+        echo "$version did not provide signed checksums or support for them has not been implemented and NODEJS_CHECK_SIGNATURES=strict is set. Exiting." >&2
+        exit 1
+      else
+        echo "$version did not provide signed checksums or support for them has not been implemented. Continue without signature checking." >&2
+        return 0
+      fi
+    fi
+    download_file "${signed_checksum_download_url}" "$signed_checksum_file"
+
+    local gnugp_verify_command_name="$(command -v gpg gpg2 | head -n 1)"
+    if [ -z "${gnugp_verify_command_name}" ]; then
+      echo "You should install GnuPG to verify the authenticity of the downloaded archives: https://www.gnupg.org/" >&2
+      exit 1
+    fi
+
+    (
+      if [ -z "${GNUPGHOME:-}" ] && [ -d "$HOME/.asdf/keyrings/nodejs" ]; then
+          export GNUPGHOME="$HOME/.asdf/keyrings/nodejs"
+      fi
+
+      local authentic_checksum_file="$tmp_download_dir/authentic_SHASUMS256.txt"
+      if ! $gnugp_verify_command_name --verify "$signed_checksum_file"; then
+        echo "Authenticity of checksum file can not be assured. Exiting." >&2
+        exit 1
+      fi
+      $gnugp_verify_command_name --output "${authentic_checksum_file}" --decrypt "$signed_checksum_file" 2>/dev/null
+    )
+  elif [ "${NODEJS_CHECK_SIGNATURES}" == "strict" ]; then
+    echo "$version did not provide signed checksums or support for them has not been implemented and NODEJS_CHECK_SIGNATURES=strict is set. Exiting." >&2
+    exit 1
+  fi
+}
+
+
+verify_archive() {
+  local tmp_download_dir="$1"
+
+  local authentic_checksum_file="$tmp_download_dir/authentic_SHASUMS256.txt"
+
+  if [ "${NODEJS_CHECK_SIGNATURES}" == "no" ]; then
+    return 0
+  fi
+
+  if [ "${NODEJS_CHECK_SIGNATURES}" == "yes" ] && [ ! -e "${authentic_checksum_file}" ]; then
+    return 0
+  fi
+
+  if verlte "0.10.0" "$version"
+  then
+    local archive_file_name="$(basename "$(get_download_url "$install_type" "$version")")"
+
+    (
+      cd "${tmp_download_dir}"
+      if ! sha256sum --check <(grep "\s$archive_file_name$" "${authentic_checksum_file}"); then
+        echo "Authenticity package archive can not be assured. Exiting." >&2
+        exit 1
+      fi
+    )
+  fi
+}
+
+
+## https://stackoverflow.com/questions/4023830/how-compare-two-strings-in-dot-separated-version-format-in-bash/4024263#4024263
+verlte() {
+  [  "$1" = "$(echo -e "$1\n$2" | sort -V | head -n1)" ]
+}
+
+
+install_nodejs "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
