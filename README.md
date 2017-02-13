@@ -30,7 +30,7 @@ This behavior can be influenced by the `NODEJS_CHECK_SIGNATURES` variable which 
 
 `no`: Do not check signatures/checksums.
 `yes`: Check signatures/checksums if they should be present (enforced for >= 0.10.0).
-`strict` (default): Check signatures/checksums and don’t operate on package versions which did not provide signatures/checksums properly (>= 0.10.0).
+`strict` (default): Check signatures/checksums and don’t operate on package versions which did not provide signatures/checksums properly (< 0.10.0).
 
 ## Use
 
