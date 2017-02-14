@@ -173,7 +173,7 @@ download_and_verify_checksums() {
       fi
 
       if ! $gnugp_verify_command_name --verify "$signed_checksum_file"; then
-        echo "Authenticity of checksum file can not be assured. Exiting." >&2
+        echo "Authenticity of checksum file can not be assured! Please be sure to check the README of asdf-nodejs in case you did not yet bootstrap trust. If you already did that then that is the point to become SUSPICIOUS! There must be a reason why this is failing. If you are installing an older NodeJS version you might need to import OpenPGP keys of previous release managers. Exiting." >&2
         exit 1
       fi
       ## Mitigates: https://github.com/nodejs/node/issues/6821
@@ -208,7 +208,7 @@ verify_archive() {
     (
       cd "${tmp_download_dir}"
       if ! sha256sum --check <(grep "\s$archive_file_name$" "${authentic_checksum_file}"); then
-        echo "Authenticity package archive can not be assured. Exiting." >&2
+        echo "Authenticity of package archive can not be assured. Exiting." >&2
         exit 1
       fi
     )
