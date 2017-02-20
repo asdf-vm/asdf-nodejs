@@ -20,7 +20,7 @@ If you decided to do the later, prepare the dedicated keyring and make it tempor
 export GNUPGHOME="$HOME/.asdf/keyrings/nodejs" && mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
 ```
 
-Then import the OpenPGP public keys of the [Release Team](https://github.com/nodejs/node/#release-team).
+Then import the OpenPGP public keys of the [Release Team](https://github.com/nodejs/node/#release-team) as documented on the linked page or run the `import-release-team-keyring` script which is bundled with this plugin.
 
 For more details, refer to [Verifying Node.js Binaries](https://blog.continuation.io/verifying-node-js-binaries/).
 Note that only versions greater or equal to 0.10.0 are checked. Before that version, signatures for SHA2-256 hashes might not be provided (and can not be installed with the `strict` setting for that reason).

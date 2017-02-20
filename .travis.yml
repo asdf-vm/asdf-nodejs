@@ -3,6 +3,7 @@ script: asdf plugin-test nodejs https://github.com/asdf-vm/asdf-nodejs.git
 before_script:
   - git clone https://github.com/asdf-vm/asdf.git
   - . asdf/asdf.sh
+  - ./bin/import-release-team-keyring
 os:
   - linux
   - osx
