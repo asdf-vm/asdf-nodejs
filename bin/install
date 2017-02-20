@@ -123,9 +123,9 @@ get_download_url() {
     fi
 
     if [[ "$operating_system" =~ "Darwin" ]]; then
-      echo "http://nodejs.org/dist/v${version}/node-v${version}-darwin-${cpu_type}.tar.gz"
+      echo "https://nodejs.org/dist/v${version}/node-v${version}-darwin-${cpu_type}.tar.gz"
     else # we'll assume it is linux
-      echo "http://nodejs.org/dist/v${version}/node-v${version}-linux-${cpu_type}.tar.gz"
+      echo "https://nodejs.org/dist/v${version}/node-v${version}-linux-${cpu_type}.tar.gz"
     fi
   else
     echo "https://github.com/nodejs/node/archive/${version}.tar.gz"
