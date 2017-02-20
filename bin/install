@@ -60,14 +60,19 @@ construct_configure_options() {
 
 
 os_based_configure_options() {
-  local operating_system=$(uname -a)
+  local operating_system=$(uname -m)
   local configure_options=""
 
-  if [[ "$operating_system" =~ "x86_64" ]]; then
+  case "$operating_system" in
+  x86_64)
     local cpu_type="x64"
-  else
+    ;;
+  armv7l)
+    local cpu_type="armv7l"
+    ;;
+  *)
     local cpu_type="x86"
-  fi
+  esac
 
   configure_options="$configure_options --dest-cpu=$cpu_type"
   echo $configure_options
@@ -91,11 +96,16 @@ get_download_file_path() {
 
 
   if [ "$install_type" = "version" ]; then
-    if [[ "$operating_system" =~ "x86_64" ]]; then
+    case "$operating_system" in
+    *"x86_64"*)
       local cpu_type="x64"
-    else
+      ;;
+    *"armv7l"*)
+      local cpu_type="armv7l"
+      ;;
+    *)
       local cpu_type="x86"
-    fi
+    esac
 
     if [[ "$operating_system" =~ "Darwin" ]]; then
       local pkg_name="node-v${version}-darwin-${cpu_type}"
@@ -116,11 +126,16 @@ get_download_url() {
   local operating_system=$(uname -a)
 
   if [ "$install_type" = "version" ]; then
-    if [[ "$operating_system" =~ "x86_64" ]]; then
+    case "$operating_system" in
+    *"x86_64"*)
       local cpu_type="x64"
-    else
+      ;;
+    *"armv7l"*)
+      local cpu_type="armv7l"
+      ;;
+    *)
       local cpu_type="x86"
-    fi
+    esac
 
     if [[ "$operating_system" =~ "Darwin" ]]; then
       echo "https://nodejs.org/dist/v${version}/node-v${version}-darwin-${cpu_type}.tar.gz"
