@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 echo $(
-  curl --silent http://semver.io/node/versions \
+  curl --silent https://semver.io/node/versions \
   | grep -E -v '^0\.([0-9])\.'
 )
