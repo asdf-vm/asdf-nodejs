@@ -71,7 +71,7 @@ construct_configure_options() {
 
 get_nodejs_machine_hardware_name() {
   local machine_hardware_name
-  machine_hardware_name="$(uname --machine)"
+  machine_hardware_name="$(uname -m)"
 
   case "$machine_hardware_name" in
     'x86_64') local cpu_type="x64";;
@@ -98,7 +98,7 @@ get_archive_file_name() {
   local pkg_name
 
   if [ "$install_type" = "version" ]; then
-    pkg_name="node-v${version}-$(uname --kernel-name | tr '[:upper:]' '[:lower:]')-$(get_nodejs_machine_hardware_name)"
+    pkg_name="node-v${version}-$(uname -s | tr '[:upper:]' '[:lower:]')-$(get_nodejs_machine_hardware_name)"
   else
     pkg_name="${version}"
   fi
@@ -207,7 +207,7 @@ verify_archive() {
 
     (
       cd "${tmp_download_dir}"
-      if ! sha256sum --check <(grep "\s$archive_file_name$" "${authentic_checksum_file}"); then
+      if ! shasum -a 256 --check <(grep "\s$archive_file_name$" "${authentic_checksum_file}"); then
         echo "Authenticity of package archive can not be assured. Exiting." >&2
         exit 1
       fi
@@ -217,8 +217,10 @@ verify_archive() {
 
 
 verlte() {
+  ## The GNU Core Utils commands for MacOS come with a `g` preappended
+  sort_command=$([ $(uname) == "Darwin" ] && echo "gsort" || echo "sort")
   ## https://stackoverflow.com/questions/4023830/how-compare-two-strings-in-dot-separated-version-format-in-bash/4024263#4024263
-  [  "$1" = "$(echo -e "$1\n$2" | sort -V | head -n1)" ]
+  [  "$1" = "$(echo -e "$1\n$2" | $sort_command -V | head -n1)" ]
 }
 
 
