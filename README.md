@@ -13,8 +13,6 @@ Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 ```
 asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 
-export GNUPGHOME="$HOME/.asdf/keyrings/nodejs" && mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
-
 # Imports Node.js release team's OpenPGP keys to main keyring
 bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
 ```
