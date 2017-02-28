@@ -27,6 +27,14 @@ When installing Node.js using `asdf install`, you can pass custom configure opti
 * `NODEJS_EXTRA_CONFIGURE_OPTIONS` - append these configure options along with ones that this plugin already uses
 * `NODEJS_CHECK_SIGNATURES` - `strict` is default. Other values are `no` and `yes`. Checks downloads against OpenPGP signatures from the Node.js release team.
 
+### `.nvmrc` file
+
+asdf uses the `.tool-versions` for auto-switching between software versions. To ease migration, you can have it read an existing `.nvmrc` file to find out what version of Node.js should be used. To do this, add the following to `$HOME/.asdfrc`:
+
+```
+legacy_version_file = yes
+```
+
 ## Using a dedicated OpenPGP keyring
 
 The `gpg` commands above imports the OpenPGP public keys in your main OpenPGP keyring. However, you can also use a dedicated keyring in order to mitigate [this issue](https://github.com/nodejs/node/issues/9859).
