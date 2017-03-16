@@ -168,8 +168,8 @@ download_and_verify_checksums() {
     fi
 
     (
-      if [ -z "${GNUPGHOME:-}" ] && [ -d "$HOME/.asdf/keyrings/nodejs" ]; then
-          export GNUPGHOME="$HOME/.asdf/keyrings/nodejs"
+      if [ -z "${GNUPGHOME:-}" ] && [ -d "${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs" ]; then
+          export GNUPGHOME="${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs"
       fi
 
       if ! $gnugp_verify_command_name --verify "$signed_checksum_file"; then
