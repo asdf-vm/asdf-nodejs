@@ -35,6 +35,16 @@ asdf uses the `.tool-versions` for auto-switching between software versions. To 
 legacy_version_file = yes
 ```
 
+## Default npm Packages
+
+asdf-nodejs can automatically install a set of default set of npm package right after installing a Ruby version. To enable this feature, provide a `$HOME/.default-npm-packages` file that lists one package per line, for example:
+
+```
+lodash
+request
+express
+```
+
 ## Using a dedicated OpenPGP keyring
 
 The `gpg` commands above imports the OpenPGP public keys in your main OpenPGP keyring. However, you can also use a dedicated keyring in order to mitigate [this issue](https://github.com/nodejs/node/issues/9859).
