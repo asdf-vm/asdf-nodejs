@@ -231,4 +231,24 @@ verlte() {
 tmp_download_dir="$(mktemp -d -t 'asdf_nodejs_XXXXXX')"
 trap 'rm -rf "${tmp_download_dir}"' EXIT
 
+install_default_modules() {
+  local default_modules="${HOME}/.default-modules"
+  local npm_bin="${ASDF_INSTALL_PATH}/bin/npm"
+
+  if [ ! -f $default_modules ]; then return; fi
+
+  echo ""
+
+  for name in $(cat $default_modules); do
+    echo -n "Installing ${name}... "
+
+    if $npm_bin install -g $name > /dev/null 2>&1; then
+      echo "SUCCESS"
+    else
+      echo "FAIL"
+    fi
+  done
+}
+
 install_nodejs "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH" "$tmp_download_dir"
+install_default_modules
