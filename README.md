@@ -43,7 +43,7 @@ legacy_version_file = yes
 
 ## Default npm Packages
 
-asdf-nodejs can automatically install a set of default set of npm package right after installing a Ruby version. To enable this feature, provide a `$HOME/.default-npm-packages` file that lists one package per line, for example:
+asdf-nodejs can automatically install a set of default set of npm package right after installing a Node.js version. To enable this feature, provide a `$HOME/.default-npm-packages` file that lists one package per line, for example:
 
 ```
 lodash
