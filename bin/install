@@ -227,8 +227,24 @@ verlte() {
   [  "$1" = "$(echo -e "$1\n$2" | sort_versions | head -n1)" ]
 }
 
+install_default_npm_packages() {
+  local default_npm_packages="${HOME}/.default-npm-packages"
+
+  if [ ! -f $default_npm_packages ]; then return; fi
+
+  for name in $(cat $default_npm_packages); do
+    echo -ne "\nInstalling \e[33m${name}\e[39m npm package... "
+
+    if npm install -g $name > /dev/null 2>&1; then
+      echo -e "\e[32mSUCCESS\e[39m"
+    else
+      echo -e "\e[31mFAIL\e[39m"
+    fi
+  done
+}
 
 tmp_download_dir="$(mktemp -d -t 'asdf_nodejs_XXXXXX')"
 trap 'rm -rf "${tmp_download_dir}"' EXIT
 
 install_nodejs "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH" "$tmp_download_dir"
+install_default_npm_packages
