@@ -17,6 +17,6 @@ SERVERS="ipv4.pool.sks-keyservers.net \
 
 for key in $KEYS; do
   for server in $SERVERS; do
-    gpg --keyserver $server --recv-keys $key && break
+    gpg --keyserver hkp://$server:80 --recv-keys $key && break
   done
 done
