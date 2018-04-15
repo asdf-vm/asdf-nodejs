@@ -9,14 +9,12 @@ install_nodejs() {
   local version=$2
   local install_path=$3
 
-  if [ "$install_type" != "version" ]; then
-    echoerr "Cannot install specific ref from source, sorry."
-    echoerr "For a list of available versions, see \`asdf list-all nodejs\`."
-    exit 1
-  fi
-
   echo "node-build $version $install_path"
-  $(node_build_path) "$version" "$install_path"
+  if [ "$install_type" = "ref" ]; then
+    $(node_build_path) /dev/stdin "$install_path" <<<"install_package \"node-$version\" \"https://github.com/nodejs/node/archive/$version.tar.gz\""
+  else
+    $(node_build_path) "$version" "$install_path"
+  fi
 }
 
 install_default_npm_packages() {
