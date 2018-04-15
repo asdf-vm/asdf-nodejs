@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-echo $(
-  curl --silent https://semver.io/node/versions \
-  | grep -E -v '^0\.([0-9])\.'
-)
+source "$(dirname "$0")/utils.sh"
+
+list_all() {
+  ensure_node_build_installed
+
+  $(node_build_path) --definitions | tr '\n' ' '
+}
+
+list_all
