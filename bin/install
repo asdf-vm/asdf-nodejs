@@ -4,6 +4,14 @@ set -o nounset -o pipefail -o errexit
 
 NODEJS_CHECK_SIGNATURES="${NODEJS_CHECK_SIGNATURES:-strict}"
 
+# When in China, set $NODEJS_ORG_MIRROR:
+# export NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node/
+NODEJS_ORG_MIRROR="${NODEJS_ORG_MIRROR:-https://nodejs.org/dist/}"
+if [ ${NODEJS_ORG_MIRROR: -1} != / ]
+then
+  NODEJS_ORG_MIRROR=$NODEJS_ORG_MIRROR/
+fi
+
 install_nodejs() {
   local install_type="$1"
   local version="$2"
@@ -113,7 +121,7 @@ get_download_url() {
   local version="$2"
 
   if [ "$install_type" = "version" ]; then
-    local download_url_base="https://nodejs.org/dist/v${version}"
+    local download_url_base="${NODEJS_ORG_MIRROR}v${version}"
   else
     local download_url_base="https://github.com/nodejs/node/archive"
   fi
@@ -127,7 +135,7 @@ get_signed_checksum_download_url() {
   local version=$2
 
   if [ "$install_type" = "version" ]; then
-    echo "https://nodejs.org/dist/v${version}/SHASUMS256.txt.asc"
+    echo "${NODEJS_ORG_MIRROR}v${version}/SHASUMS256.txt.asc"
   else
     # Not implemented.
     exit 1
