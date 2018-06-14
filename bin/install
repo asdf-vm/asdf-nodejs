@@ -234,7 +234,7 @@ install_default_npm_packages() {
 
   for name in $(cat $default_npm_packages); do
     echo -ne "\nInstalling \e[33m${name}\e[39m npm package... "
-    PATH="$PATH:$ASDF_INSTALL_PATH/bin" npm install -g $name > /dev/null 2>&1
+    PATH="$ASDF_INSTALL_PATH/bin:$PATH" npm install -g $name > /dev/null 2>&1
     if [[ $? -eq 0 ]]; then
       echo -e "\e[32mSUCCESS\e[39m"
     else
