@@ -1,5 +1,7 @@
 # asdf-nodejs
 
+[![Build Status](https://travis-ci.org/asdf-vm/asdf-nodejs.svg?branch=master)](https://travis-ci.org/asdf-vm/asdf-nodejs)
+
 Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 
 *The plugin properly validates OpenPGP signatures to check the authenticity of the package. Requires `gpg` to be available during package installs*
