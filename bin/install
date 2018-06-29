@@ -187,6 +187,23 @@ download_and_verify_checksums() {
   fi
 }
 
+checkShasum ()
+{
+  local archive_file_name="${1}"
+  local authentic_checksum_file="${2}"
+
+  if $(which sha256sum >/dev/null 2>&1); then
+    sha256sum \
+      --check <(grep "\s${archive_file_name}$" "${authentic_checksum_file}")
+  elif $(which shasum >/dev/null 2>&1); then
+    shasum \
+      -a 256 \
+      --check <(grep "\s${archive_file_name}$" "${authentic_checksum_file}")
+  else
+    echo "sha256sum or shasum is not available for use" >&2
+    return 1
+  fi
+}
 
 verify_archive() {
   local tmp_download_dir="$1"
@@ -208,7 +225,7 @@ verify_archive() {
 
     (
       cd "${tmp_download_dir}"
-      if ! shasum -a 256 --check <(grep "\s$archive_file_name$" "${authentic_checksum_file}"); then
+      if ! checkShasum "$archive_file_name" "$authentic_checksum_file"; then
         echo "Authenticity of package archive can not be assured. Exiting." >&2
         exit 1
       fi
