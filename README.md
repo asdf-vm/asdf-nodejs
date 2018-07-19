@@ -34,6 +34,7 @@ When installing Node.js using `asdf install`, you can pass custom configure opti
 * `NODEJS_CONFIGURE_OPTIONS` - use only your configure options
 * `NODEJS_EXTRA_CONFIGURE_OPTIONS` - append these configure options along with ones that this plugin already uses
 * `NODEJS_CHECK_SIGNATURES` - `strict` is default. Other values are `no` and `yes`. Checks downloads against OpenPGP signatures from the Node.js release team.
+* `NODEJS_ORG_MIRROR` - official mirror `https://nodejs.org/dist/` is default. If you are in China, you can set it to `https://npm.taobao.org/mirrors/node/`.
 
 ### `.nvmrc` and `.node-version` files
 
