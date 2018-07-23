@@ -12,11 +12,16 @@ KEYS="94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
       8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
       77984A986EBC2AA786BC0F66B01FBB92821C587A"
 
-SERVERS="ipv4.pool.sks-keyservers.net \
-         pgp.mit.edu"
+SERVERS="ha.pool.sks-keyservers.net
+         hkp://p80.pool.sks-keyservers.net:80 \
+         hkp://ipv4.pool.sks-keyservers.net \
+         keyserver.ubuntu.com
+         hkp://keyserver.ubuntu.com:80 \
+         pgp.mit.edu
+         hkp://pgp.mit.edu:80"
 
 for key in $KEYS; do
   for server in $SERVERS; do
-    gpg --keyserver hkp://$server:80 --recv-keys $key && break
+    gpg --keyserver "$server" --recv-keys "$key" && break
   done
 done
