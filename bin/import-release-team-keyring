@@ -20,8 +20,13 @@ SERVERS="ha.pool.sks-keyservers.net
          pgp.mit.edu
          pgp.mit.edu:80"
 
+OPTIONS=""
+if [ -v http_proxy ];
+  then OPTIONS="--keyserver-options http-proxy=$http_proxy";
+fi
+
 for key in $KEYS; do
   for server in $SERVERS; do
-    gpg --keyserver "hkp://$server" --recv-keys "$key" && break
+    gpg --keyserver "hkp://$server" $OPTIONS --recv-keys "$key"  && break
   done
 done
