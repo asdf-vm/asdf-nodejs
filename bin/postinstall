@@ -1,3 +1,42 @@
 #!/usr/bin/env bash
 
-asdf reshim nodejs "$ASDF_INSTALL_VERSION"
+set -e
+
+declare LOCK_FILE="/tmp/asdf-nodejs-postinstall.lock.2ac8ccc4"
+declare last_called_file="/tmp/asdf-nodejs-postinstall.last_called.dd05fa02"
+declare -i throttle_by=10
+
+main() {
+    sleep $throttle_by
+
+    local -i last_called=0
+    local -i now=$(date +%s)
+
+    {
+        flock -s 200
+        touch "$last_called_file"
+        last_called="$(<"$last_called_file")"
+    } 200>"$LOCK_FILE"
+
+    if (($now - $last_called >= $throttle_by)); then
+        {
+            flock -x 200
+            touch "$last_called_file"
+            if (( $last_called == $(($(<"$last_called_file"))) )); then
+                >"$last_called_file" date +%s
+            else
+                exit 0
+            fi
+        } 200>"$LOCK_FILE"
+
+        asdf reshim nodejs "$ASDF_INSTALL_VERSION"
+
+        {
+            flock -x 200
+            touch "$last_called_file"
+            >"$last_called_file" date +%s
+        } 200>"$LOCK_FILE"
+    fi
+}
+
+main &
