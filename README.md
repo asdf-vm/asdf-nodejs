@@ -25,6 +25,12 @@ Import the Node.js release team's OpenPGP keys to main keyring:
 bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
 ```
 
+If you intalled `asdf` with `brew` adjust the path to the Node.js plugin:
+
+```bash
+bash /usr/local/opt/asdf/plugins/nodejs/bin/import-release-team-keyring
+```
+
 ## Use
 
 Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to install & manage versions of Node.js.
@@ -65,6 +71,15 @@ export GNUPGHOME="${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs" && mkdir -p "$GNUPGH
 
 # Imports Node.js release team's OpenPGP keys to the keyring
 bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
+```
+
+Again, if you used `brew` to manage the `asdf` installtion use the following bash commands:
+
+```bash
+export GNUPGHOME="bash /usr/local/opt/asdf/keyrings/nodejs" && mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
+
+# Imports Node.js release team's OpenPGP keys to the keyring
+bash bash /usr/local/opt/asdf/plugins/nodejs/bin/import-release-team-keyring
 ```
 
 #### Related notes
