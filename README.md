@@ -25,7 +25,7 @@ Import the Node.js release team's OpenPGP keys to main keyring:
 bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
 ```
 
-If you intalled `asdf` with `brew` adjust the path to the Node.js plugin:
+If you installed `asdf` with `brew` adjust the path to the Node.js plugin:
 
 ```bash
 bash /usr/local/opt/asdf/plugins/nodejs/bin/import-release-team-keyring
