@@ -22,10 +22,10 @@ main() {
     sleep $throttle_by
 
 
-    # Read the value from LAST_CALLED_FILE.
+    # Read the value from $LAST_CALLED_FILE.
     {
-        touch -- "$LAST_CALLED_FILE"
-        last_called=$(<"$LAST_CALLED_FILE")
+        flock -s 200
+        { last_called="$(<"$LAST_CALLED_FILE")"; } 2>/dev/null || last_called="missing"
     } 200>"$LOCK_FILE"
 
     # If (($call_time != $last_called)) we assume that some other thread will call the reshim.
