@@ -41,7 +41,6 @@ main() {
             rm -f -- "$last_called_file"
         } 200>"$LOCK_FILE"
 
-        echo ASDF RESHIM
         asdf reshim nodejs "$ASDF_INSTALL_VERSION"
     fi
 }
