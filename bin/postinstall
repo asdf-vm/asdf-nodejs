@@ -4,7 +4,7 @@ set -e
 
 declare LOCK_FILE="/tmp/asdf-nodejs-postinstall.lock.2ac8ccc4"
 declare last_called_file="/tmp/asdf-nodejs-postinstall.last_called.dd05fa02"
-declare -i throttle_by=10
+declare -i throttle_by=4
 
 main() {
     local -i call_time
