@@ -3,42 +3,40 @@
 set -e
 
 declare LOCK_FILE="/tmp/asdf-nodejs-postinstall.lock.2ac8ccc4"
-declare last_called_file="/tmp/asdf-nodejs-postinstall.last_called.dd05fa02"
+declare LAST_CALLED_FILE="/tmp/asdf-nodejs-postinstall.last_called.dd05fa02"
+declare DATE_FORMAT="%s %N"
 declare -i throttle_by=4
 
 main() {
-    local -i call_time
+    local call_time last_called
 
-    # Write the call time to the last_called_file.
-    # We set the call_time inside the lock block so the time written to the last_called_file will always increase.
+    # Write the $call time to the $LAST_CALLED_FILE.
+    # We set the $call_time inside the lock block so the time written to the $LAST_CALLED_FILE will always increase.
     {
         flock -x 200
-        call_time=$(date +%s)
-        >"$last_called_file" printf -- "%d\n" $call_time
+        call_time="$(date "+$DATE_FORMAT")"
+        >"$LAST_CALLED_FILE" printf -- "%s\n" "$call_time"
     } 200>"$LOCK_FILE"
 
     # Wait some amount of time.
     sleep $throttle_by
 
 
-    local -i last_called
-
-    # Read the value from last_called_file.
+    # Read the value from LAST_CALLED_FILE.
     {
-        flock -s 200
-        touch -- "$last_called_file"
-        last_called=$(<"$last_called_file")
+        touch -- "$LAST_CALLED_FILE"
+        last_called=$(<"$LAST_CALLED_FILE")
     } 200>"$LOCK_FILE"
 
     # If (($call_time != $last_called)) we assume that some other thread will call the reshim.
-    # If main() won't be called for $throttle_by seconds than the value inside $last_called_file won't change.
+    # If main() won't be called for $throttle_by seconds than the value inside $LAST_CALLED_FILE won't change.
     # So, assuming that the main will be called finitely many times, those two values will be equal for the most recent thread
     # and the last reshim will occur approximately $throttle_by seconds after the last call to main().
-    if (($call_time == $last_called)); then
-        # This cleanup has to happen before the reshim because main() might be called after the reshim and before the removal of the $last_called_file.
+    if [ "$call_time" == "$last_called" ]; then
+        # This cleanup has to happen before the reshim because main() might be called after the reshim and before the removal of the $LAST_CALLED_FILE.
         {
             flock -x 200
-            rm -f -- "$last_called_file"
+            rm -f -- "$LAST_CALLED_FILE"
         } 200>"$LOCK_FILE"
 
         asdf reshim nodejs "$ASDF_INSTALL_VERSION"
@@ -46,5 +44,5 @@ main() {
 }
 
 
-# Spawn main in background so it won't block the npm thread.
+# Spawn main() in the background so it won't block the npm thread.
 main &
