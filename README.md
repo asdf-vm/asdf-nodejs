@@ -79,7 +79,7 @@ Again, if you used `brew` to manage the `asdf` installtion use the following bas
 export GNUPGHOME="bash /usr/local/opt/asdf/keyrings/nodejs" && mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
 
 # Imports Node.js release team's OpenPGP keys to the keyring
-bash bash /usr/local/opt/asdf/plugins/nodejs/bin/import-release-team-keyring
+bash /usr/local/opt/asdf/plugins/nodejs/bin/import-release-team-keyring
 ```
 
 #### Related notes
