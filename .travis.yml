@@ -1,9 +1,8 @@
 language: c
-script: asdf plugin-test nodejs https://github.com/asdf-vm/asdf-nodejs.git
+script: asdf plugin-test nodejs .
 before_script:
   - git clone https://github.com/asdf-vm/asdf.git
   - . asdf/asdf.sh
-  - ./bin/import-release-team-keyring
 osx_image: xcode8.2
 os:
   - linux
