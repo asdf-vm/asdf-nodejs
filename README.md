@@ -8,8 +8,16 @@ Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 
 ## Requirements
 
-* _(MacOS)_ [GNU Core Utils](http://www.gnu.org/software/coreutils/coreutils.html) - `brew install coreutils`
-* _(MacOS)_ [GnuPG](http://www.gnupg.org) - `brew install gpg`
+
+### MacOS
+* [GNU Core Utils](http://www.gnu.org/software/coreutils/coreutils.html) - `brew install coreutils`
+* [GnuPG](http://www.gnupg.org) - `brew install gpg`
+
+### Linux (Debian)
+
+* [dirmngr](https://packages.debian.org/sid/dirmngr) - `apt-get install
+  dirmngr`
+* [GnuPG](http://www.gnupg.org) - `apt-get install gpg`
 
 ## Install
 
