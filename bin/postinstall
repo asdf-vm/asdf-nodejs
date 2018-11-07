@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-asdf reshim nodejs "$ASDF_INSTALL_VERSION"
+asdf reshim nodejs "${ASDF_INSTALL_VERSION:-$npm_config_node_version}"
