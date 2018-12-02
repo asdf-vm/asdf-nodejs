@@ -12,6 +12,17 @@ then
   NODEJS_ORG_MIRROR=$NODEJS_ORG_MIRROR/
 fi
 
+_shasum_256_check() {
+  local string=$1
+  if command -v shasum; then
+    shasum -a 256 --check "$string"
+  elif command -v sha256sum; then
+    sha256sum --check "$string"
+  else
+    echo "No shasum command found!"
+  fi
+}
+
 install_nodejs() {
   local install_type="$1"
   local version="$2"
@@ -221,7 +232,7 @@ verify_archive() {
 
     (
       cd "${tmp_download_dir}"
-      if ! shasum -a 256 --check <(grep "\s$archive_file_name$" "${authentic_checksum_file}"); then
+      if ! _shasum_256_check <(grep "\s$archive_file_name$" "${authentic_checksum_file}"); then
         echo "Authenticity of package archive can not be assured. Exiting." >&2
         exit 1
       fi
