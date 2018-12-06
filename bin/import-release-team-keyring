@@ -21,7 +21,7 @@ SERVERS="ha.pool.sks-keyservers.net
          pgp.mit.edu:80"
 
 OPTIONS=""
-if [ -n "${http_proxy}" ];
+if [ -n "${http_proxy:-}" ];
   then OPTIONS="--keyserver-options http-proxy=$http_proxy";
 fi
 
