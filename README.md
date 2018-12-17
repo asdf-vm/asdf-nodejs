@@ -81,7 +81,7 @@ export GNUPGHOME="${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs" && mkdir -p "$GNUPGH
 bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
 ```
 
-Again, if you used `brew` to manage the `asdf` installtion use the following bash commands:
+Again, if you used `brew` to manage the `asdf` installation use the following bash commands:
 
 ```bash
 export GNUPGHOME="bash /usr/local/opt/asdf/keyrings/nodejs" && mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
