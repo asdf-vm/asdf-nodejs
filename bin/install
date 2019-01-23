@@ -277,4 +277,5 @@ tmp_download_dir="$(mktemp -d -t 'asdf_nodejs_XXXXXX')"
 trap 'rm -rf "${tmp_download_dir}"' EXIT
 
 install_nodejs "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH" "$tmp_download_dir"
-install_default_npm_packages
+ASDF_SKIP_RESHIM=1 install_default_npm_packages
+asdf reshim nodejs "$ASDF_INSTALL_VERSION"
