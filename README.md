@@ -68,6 +68,10 @@ request
 express
 ```
 
+## Temporarily disable reshimming
+
+To avoid a slowdown when installing large packages (see https://github.com/asdf-vm/asdf-nodejs/issues/46), you can `ASDF_SKIP_RESHIM=1 npm i -g <package>` and reshim after installing all packages using `asdf reshim nodejs`.
+
 ## Using a dedicated OpenPGP keyring
 
 The `gpg` commands above imports the OpenPGP public keys in your main OpenPGP keyring. However, you can also use a dedicated keyring in order to mitigate [this issue](https://github.com/nodejs/node/issues/9859).

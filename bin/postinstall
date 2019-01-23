@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
 
-asdf reshim nodejs "${ASDF_INSTALL_VERSION:-$npm_config_node_version}"
+if [ "$ASDF_SKIP_RESHIM" == "1" ]; then
+  echo "Run 'asdf reshim nodejs ${ASDF_INSTALL_VERSION:-$npm_config_node_version}' after installing the packets to reshim"
+else
+  asdf reshim nodejs "${ASDF_INSTALL_VERSION:-$npm_config_node_version}"
+fi
