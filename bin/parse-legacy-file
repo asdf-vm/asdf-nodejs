@@ -1,4 +1,17 @@
 #!/usr/bin/env bash
+
+if [ "$(basename "$1")" = "package.json" ]; then
+  jq_command=$(command -v jq)
+  if [ -z "$jq_command" ]; then
+    echo "jq not available for use" >&2
+    exit 1
+  fi
+
+  version=$("$jq_command" -r .engines.node "$1")
+  [ "$version" != "null" ] && echo "$version"
+  exit 0
+fi
+
 echo $(
   sed '1 s/^v//' "$1"
 )
