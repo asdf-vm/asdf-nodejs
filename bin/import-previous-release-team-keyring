@@ -24,6 +24,6 @@ fi
 
 for key in $KEYS; do
   for server in $SERVERS; do
-      gpg --no-tty --keyserver "hkp://$server" $OPTIONS --recv-keys "$key" && break
+      gpg --no-tty --keyserver "hkp://$server" $OPTIONS --display-charset utf-8 --recv-keys "$key" && break
   done
 done
