@@ -96,7 +96,7 @@ bash /usr/local/opt/asdf/plugins/nodejs/bin/import-release-team-keyring
 
 #### Related notes
 
-* [Verifying Node.js Binaries](https://blog.continuation.io/verifying-node-js-binaries/).
+* [Verifying Node.js Binaries](https://github.com/nodejs/node#verifying-binaries).
 * Only versions `>=0.10.0` are checked. Before that version, signatures for SHA2-256 hashes might not be provided (and can not be installed with the `strict` setting for that reason).
 
 This behavior can be influenced by the `NODEJS_CHECK_SIGNATURES` env var which supports the following options:
