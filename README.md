@@ -68,7 +68,7 @@ To avoid a slowdown when installing large packages (see https://github.com/asdf-
 
 ## Using a dedicated OpenPGP keyring
 
-The `gpg` commands above imports the OpenPGP public keys in your main OpenPGP keyring. However, you can also use a dedicated keyring in order to mitigate [this issue](https://github.com/nodejs/node/issues/9859).
+The `bash` script mentioned in [the installation instructions](#install) (`import-release-team-keyring`) imports the OpenPGP public keys in your main OpenPGP keyring. However, you can also use a dedicated keyring in order to mitigate [this issue](https://github.com/nodejs/node/issues/9859).
 
 To use a dedicated keyring, prepare the dedicated keyring and set it as the default keyring in the current shell:
 
