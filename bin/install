@@ -260,12 +260,12 @@ verlte() {
 install_default_npm_packages() {
   local default_npm_packages="${HOME}/.default-npm-packages"
 
-  if [ ! -f $default_npm_packages ]; then return; fi
+  if [ ! -f "$default_npm_packages" ]; then return; fi
 
-  for name in $(cat $default_npm_packages); do
+  cat "$default_npm_packages" | while read -r name; do
     echo -ne "\nInstalling \033[33m${name}\033[39m npm package... "
-    PATH="$ASDF_INSTALL_PATH/bin:$PATH" npm install -g $name > /dev/null 2>&1
-    if [[ $? -eq 0 ]]; then
+    PATH="$ASDF_INSTALL_PATH/bin:$PATH" npm install -g "$name" > /dev/null 2>&1 && rc=$? || rc=$?
+    if [[ $rc -eq 0 ]]; then
       echo -e "\033[32mSUCCESS\033[39m"
     else
       echo -e "\033[31mFAIL\033[39m"
