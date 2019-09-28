@@ -96,9 +96,9 @@ download_file() {
   local download_url="$1"
   local download_path="$2"
 
-  STATUSCODE=$(curl --write-out "%{http_code}" -Lo "$download_path" -C - "$download_url")
+  wget -q -O "$download_path" "$download_url" 2>&1
 
-  if test $STATUSCODE -eq 404; then
+  if [ $? -ne 0 ]; then
     echo "Binaries were not found. Full version must be specified, not just major version."
     exit 1
   fi
