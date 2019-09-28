@@ -91,8 +91,7 @@ get_nodejs_machine_hardware_name() {
   echo "$cpu_type"
 }
 
-
-download_file() {
+download_file_with_curl() {
   local download_url="$1"
   local download_path="$2"
 
@@ -104,6 +103,28 @@ download_file() {
   fi
 }
 
+download_file_with_wget() {
+  local download_url="$1"
+  local download_path="$2"
+
+  wget -q -O "$download_path" "$download_url" 2>&1
+
+  if [ $? -ne 0 ]; then
+    echo "Binaries were not found. Full version must be specified, not just major version."
+    exit 1
+  fi
+}
+
+download_file() {
+  local download_url="$1"
+  local download_path="$2"
+
+  if [ -n "${DOWNLOADER+1}" ]; then
+    download_file_with_wget  "${download_url}" "${download_path}"
+  else
+    download_file_with_curl "${download_url}" "${download_path}"
+  fi
+}
 
 get_archive_file_name() {
   local install_type="$1"
