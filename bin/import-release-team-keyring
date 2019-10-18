@@ -2,7 +2,7 @@
 
 set -o nounset -o pipefail -o errexit
 
-## Keys from https://github.com/nodejs/node/#release-team
+## Keys from https://github.com/nodejs/node/#release-keys
 KEYS="94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
       FD3A5288F042B6850C66B31F09FE44734EB7990E \
       71DCFD284A79C3B38668286BC97EC7A07EDE3FC1 \
