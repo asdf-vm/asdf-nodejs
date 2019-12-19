@@ -22,8 +22,17 @@ if [ -v http_proxy ];
 then OPTIONS="--keyserver-options http-proxy=$http_proxy";
 fi
 
+if command -v gpg > /dev/null 2>&1; then
+  gpg_command="gpg"
+elif command -v gpg2 > /dev/null 2>&1; then
+  gpg_command="gpg2"
+else
+  echo 'gpg or gpg2 command not found!'
+  exit 1
+fi
+
 for key in $KEYS; do
   for server in $SERVERS; do
-      gpg --no-tty --keyserver "hkp://$server" $OPTIONS --display-charset utf-8 --recv-keys "$key" && break
+      $gpg_command --no-tty --keyserver "hkp://$server" $OPTIONS --display-charset utf-8 --recv-keys "$key" && break
   done
 done
