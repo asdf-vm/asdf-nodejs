@@ -28,17 +28,16 @@ if [ -n "${http_proxy:-}" ];
   then OPTIONS="--keyserver-options http-proxy=$http_proxy";
 fi
 
-if command -v gpg > /dev/null 2>&1; then
-  gpg_command="gpg"
-elif command -v gpg2 > /dev/null 2>&1; then
-  gpg_command="gpg2"
-else
-  echo 'gpg or gpg2 command not found!'
+gnugp_verify_command_name="$(command -v gpg gpg2 | head -n 1 || :)"
+
+if [ -z "${gnugp_verify_command_name}" ]; then
+  echo 'gpg or gpg2 command not found!' >&2
+  echo "You must install GnuPG to import release team keys: https://www.gnupg.org/" >&2
   exit 1
 fi
 
 for key in $KEYS; do
   for server in $SERVERS; do
-    $gpg_command --no-tty --keyserver "hkp://$server" $OPTIONS --display-charset utf-8 --recv-keys "$key"  && break
+    $gnugp_verify_command_name --no-tty --keyserver "hkp://$server" $OPTIONS --display-charset utf-8 --recv-keys "$key"  && break
   done
 done
