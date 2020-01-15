@@ -2,6 +2,9 @@
 
 set -o nounset -o pipefail -o errexit
 
+# shellcheck source=../lib/utils.sh
+source "$(dirname "$0")/../lib/utils.sh"
+
 NODEJS_CHECK_SIGNATURES="${NODEJS_CHECK_SIGNATURES:-strict}"
 
 # When in China, set $NODEJS_ORG_MIRROR:
@@ -278,4 +281,5 @@ trap 'rm -rf "${tmp_download_dir}"' EXIT
 
 install_nodejs "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH" "$tmp_download_dir"
 ASDF_SKIP_RESHIM=1 install_default_npm_packages
-asdf reshim nodejs "$ASDF_INSTALL_VERSION"
+
+asdf reshim "$(plugin_name)" "$ASDF_INSTALL_VERSION"
