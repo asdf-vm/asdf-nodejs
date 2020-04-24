@@ -3,3 +3,7 @@
 if [ "$NPM_CONFIG_PREFIX" = "" ] && [ -n "$ASDF_INSTALL_PATH" ]; then
   export NPM_CONFIG_PREFIX=$ASDF_INSTALL_PATH/.npm
 fi
+
+if [ "$npm_prefix" = "" ] && [ -n "$ASDF_INSTALL_PATH" ]; then
+  export npm_prefix=$ASDF_INSTALL_PATH/.npm
+fi
