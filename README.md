@@ -18,6 +18,7 @@ Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 * [dirmngr](https://packages.debian.org/sid/dirmngr) - `apt-get install
   dirmngr`
 * [GnuPG](http://www.gnupg.org) - `apt-get install gpg`
+* [curl](https://curl.haxx.se) - `apt-get install curl`
 
 ## Install
 
