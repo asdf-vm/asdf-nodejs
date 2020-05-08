@@ -38,6 +38,6 @@ fi
 
 for key in $KEYS; do
   for server in $SERVERS; do
-    $gnugp_verify_command_name --no-tty --keyserver "hkp://$server" $OPTIONS --display-charset utf-8 --recv-keys "$key"  && break
+    $gnugp_verify_command_name --no-default-keyring --keyring asdf-nodejs.gpg --no-tty --keyserver "hkp://$server" $OPTIONS --display-charset utf-8 --recv-keys "$key"  && break
   done
 done
