@@ -1,5 +1,5 @@
 language: c
-script: asdf plugin test nodejs . --asdf-plugin-gitref $TRAVIS_BRANCH node --version
+script: asdf plugin test nodejs . --asdf-plugin-gitref HEAD node --version
 before_script:
   - git clone https://github.com/asdf-vm/asdf.git
   - . asdf/asdf.sh
