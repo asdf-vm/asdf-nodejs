@@ -210,11 +210,11 @@ checkShasum ()
 
   if $(command -v sha256sum >/dev/null 2>&1); then
     sha256sum \
-      --check <(grep "\s${archive_file_name}$" "${authentic_checksum_file}")
+      -c <(grep "\s${archive_file_name}$" "${authentic_checksum_file}")
   elif $(command -v shasum >/dev/null 2>&1); then
     shasum \
       -a 256 \
-      --check <(grep "\s${archive_file_name}$" "${authentic_checksum_file}")
+      -c <(grep "\s${archive_file_name}$" "${authentic_checksum_file}")
   else
     echo "sha256sum or shasum is not available for use" >&2
     return 1
