@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-if [ "$NPM_CONFIG_PREFIX" = "" ] && [ -n "$ASDF_INSTALL_PATH" ]; then
+if [ "${NPM_CONFIG_PREFIX-}" = "" ] && [ -n "$ASDF_INSTALL_PATH" ]; then
   export NPM_CONFIG_PREFIX=$ASDF_INSTALL_PATH/.npm
 fi
