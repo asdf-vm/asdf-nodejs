@@ -2,6 +2,8 @@
 
 set -o nounset -o pipefail -o errexit
 
+source "$(dirname "$0")/../lib/utils.sh"
+
 ## Keys from https://github.com/nodejs/node/#release-keys
 KEYS="94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
       FD3A5288F042B6850C66B31F09FE44734EB7990E \
@@ -38,6 +40,6 @@ fi
 
 for key in $KEYS; do
   for server in $SERVERS; do
-    $gnugp_verify_command_name --no-tty --keyserver "hkp://$server" $OPTIONS --display-charset utf-8 --recv-keys "$key"  && break
+    $gnugp_verify_command_name --no-default-keyring --keyring ${ASDF_NODEJS_KEYRING} --no-tty --keyserver "hkp://$server" $OPTIONS --display-charset utf-8 --recv-keys "$key" && break
   done
 done
