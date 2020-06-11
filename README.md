@@ -31,7 +31,7 @@ asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 Import the Node.js release team's OpenPGP keys to main keyring:
 
 ```bash
-bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
+bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-release-team-keyring'
 ```
 
 ## Use
