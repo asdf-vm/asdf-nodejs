@@ -265,7 +265,7 @@ verlte() {
 }
 
 install_default_npm_packages() {
-  local default_npm_packages="${HOME}/.default-npm-packages"
+  local default_npm_packages="${ASDF_NPM_DEFAULT_PACKAGES_FILE:=$HOME/.default-npm-packages}"
 
   if [ ! -f "$default_npm_packages" ]; then return; fi
 
