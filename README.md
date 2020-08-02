@@ -69,6 +69,8 @@ request
 express
 ```
 
+You can specify a non-default location of this file by setting a `ASDF_NPM_DEFAULT_PACKAGES_FILE` variable.
+
 ## Temporarily disable reshimming
 
 To avoid a slowdown when installing large packages (see https://github.com/asdf-vm/asdf-nodejs/issues/46), you can `ASDF_SKIP_RESHIM=1 npm i -g <package>` and reshim after installing all packages using `asdf reshim nodejs`.
