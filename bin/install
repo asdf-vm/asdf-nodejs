@@ -198,6 +198,7 @@ download_and_verify_checksums() {
       fi
       ## Mitigates: https://github.com/nodejs/node/issues/6821
       local authentic_checksum_file="$tmp_download_dir/authentic_SHASUMS256.txt"
+      rm -f $authentic_checksum_file
       $gnugp_verify_command_name --no-default-keyring --keyring "${ASDF_NODEJS_KEYRING}" --output "${authentic_checksum_file}" --decrypt "$signed_checksum_file" 2>/dev/null ||
         $gnugp_verify_command_name --output "${authentic_checksum_file}" --decrypt "$signed_checksum_file" 2>/dev/null
     )
