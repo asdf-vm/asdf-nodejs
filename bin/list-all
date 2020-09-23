@@ -5,6 +5,7 @@ set -o nounset -o pipefail -o errexit
 # shellcheck source=../lib/utils.sh
 source "$(dirname "$0")/../lib/utils.sh"
 
+# Print
 echo $(
-  print_index_tab | filter_candidates_versions | awk -F'\t' '{ print $1 }' | tac
+  print_index_tab | filter_version_candidates | awk -F'\t' '{ print $1 }' | tac
 )
