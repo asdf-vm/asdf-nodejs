@@ -7,26 +7,20 @@ source "$(dirname "$0")/../lib/utils.sh"
 
 NODEJS_CHECK_SIGNATURES="${NODEJS_CHECK_SIGNATURES:-strict}"
 
-# When in China, set $NODEJS_ORG_MIRROR:
-# export NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node/
-NODEJS_ORG_MIRROR="${NODEJS_ORG_MIRROR:-https://nodejs.org/dist/}"
-if [ ${NODEJS_ORG_MIRROR: -1} != / ]
-then
-  NODEJS_ORG_MIRROR=$NODEJS_ORG_MIRROR/
-fi
-
 install_nodejs() {
   local install_type="$1"
-  local version="$2"
+  local version_query="$2"
   local install_path="$3"
   local tmp_download_dir="$4"
+  local version="$(resolve_version_query "$version_query")"
 
   ## Do this first as it is fast but could fail.
   download_and_verify_checksums "$install_type" "$version" "$tmp_download_dir"
 
   local archive_path
   archive_path="${tmp_download_dir}/$(get_archive_file_name "$install_type" "$version")"
-  download_file "$(get_download_url "$install_type" "$version")" "${archive_path}"
+  download_file "$(get_download_url "$install_type" "$version")" "${archive_path}" \
+    || die "Binary not found for version $version"
 
   verify_archive "$tmp_download_dir"
 
@@ -59,6 +53,21 @@ install_nodejs() {
   )
 }
 
+resolve_version_query() {
+  local version_query="$1"
+  local aliased="$(
+    print_index_tab \
+      | filter_version_candidates \
+      | awk -F'\t' -v "al=$version_query" '$1 == al { print $2; exit }'
+  )"
+
+  if ! [ -z "$aliased" ]; then
+    >&2 echo "Installing alias $version_query as $aliased"
+    echo "$aliased"
+  else
+    echo "$version_query"
+  fi
+}
 
 construct_configure_options() {
   local install_path="$1"
@@ -102,8 +111,7 @@ download_file() {
   STATUSCODE=$(curl --write-out "%{http_code}" -Lo "$download_path" -C - "$download_url")
 
   if test $STATUSCODE -eq 404; then
-    echo "Binaries were not found. Full version must be specified, not just major version."
-    exit 1
+    return 1
   fi
 }
 
@@ -175,7 +183,9 @@ download_and_verify_checksums() {
         return 0
       fi
     fi
-    download_file "${signed_checksum_download_url}" "$signed_checksum_file"
+
+    download_file "${signed_checksum_download_url}" "$signed_checksum_file" \
+      || die "Checksum not found for version $version"
 
     local gnugp_verify_command_name
     gnugp_verify_command_name="$(command -v gpg gpg2 | head -n 1 || :)"
