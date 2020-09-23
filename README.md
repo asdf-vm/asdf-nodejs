@@ -12,6 +12,7 @@ Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 ### MacOS
 * [GNU Core Utils](http://www.gnu.org/software/coreutils/coreutils.html) - `brew install coreutils`
 * [GnuPG](http://www.gnupg.org) - `brew install gpg`
+* awk - any posix compliant implementation (tested on gawk `brew install gawk`)
 
 ### Linux (Debian)
 
@@ -19,6 +20,7 @@ Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
   dirmngr`
 * [GnuPG](http://www.gnupg.org) - `apt-get install gpg`
 * [curl](https://curl.haxx.se) - `apt-get install curl`
+* awk - any posix compliant implementation (tested on gawk `apt-get install gawk`)
 
 ## Install
 
