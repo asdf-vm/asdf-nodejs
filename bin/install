@@ -53,12 +53,14 @@ install_nodejs() {
   )
 }
 
+
 resolve_version_query() {
   local version_query="$1"
   local aliased="$(
+    # Find the first candidate which the alias match, then print it version
     print_index_tab \
       | filter_version_candidates \
-      | awk -F'\t' -v "al=$version_query" '$1 == al { print $2; exit }'
+      | awk -F'\t' -v "alias=$version_query" '$1 == alias { print $2; exit }'
   )"
 
   if ! [ -z "$aliased" ]; then
@@ -68,6 +70,7 @@ resolve_version_query() {
     echo "$version_query"
   fi
 }
+
 
 construct_configure_options() {
   local install_path="$1"
