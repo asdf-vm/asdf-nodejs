@@ -64,7 +64,7 @@ filter_version_candidates() {
           print "lts\t" vers
         }
 
-        lts_alias = "lts/" tolower(record["lts"])
+        lts_alias = "lts-" tolower(record["lts"])
         if (!(lts_alias in aliases)) {
           aliases[lts_alias] = vers
           print lts_alias "\t" vers
