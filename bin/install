@@ -7,6 +7,8 @@ source "$(dirname "$0")/../lib/utils.sh"
 
 NODEJS_CHECK_SIGNATURES="${NODEJS_CHECK_SIGNATURES:-strict}"
 
+ASDF_PLUGIN_NAME=nodejs
+
 install_nodejs() {
   local install_type="$1"
   local version_query="$2"
@@ -14,43 +16,60 @@ install_nodejs() {
   local tmp_download_dir="$4"
   local version="$(resolve_version_query "$version_query")"
 
-  ## Do this first as it is fast but could fail.
-  download_and_verify_checksums "$install_type" "$version" "$tmp_download_dir"
+  if [ "$version" != "$version_query" ]; then
+    # install the true version and only symlink it to the alias
+    
+    >&2 echo "Installing alias $version_query as $version"
+    asdf install "$ASDF_PLUGIN_NAME" "$version" \
+      || die "Could not install version $version"
 
-  local archive_path
-  archive_path="${tmp_download_dir}/$(get_archive_file_name "$install_type" "$version")"
-  download_file "$(get_download_url "$install_type" "$version")" "${archive_path}" \
-    || die "Binary not found for version $version"
-
-  verify_archive "$tmp_download_dir"
-
-  # running this in a subshell
-  # we don't want to disturb current working dir
-  (
-    if [ "$install_type" != "version" ]; then
-      tar zxf "$archive_path" -C "$install_path" --strip-components=1 || exit 1
-      cd "$install_path" || exit 1
-
-      local configure_options
-      configure_options="$(construct_configure_options "$install_path")"
-
-      # shellcheck disable=SC2086
-      ./configure $configure_options || exit 1
-      make
-      make install
-
-      if [ $? -ne 0 ]; then
-        rm -rf "$install_path"
-        exit 1
-      fi
+    if [ -L "$install_path" ]; then
+      rm "$install_path"
     else
-      tar zxf "$archive_path" -C "$install_path" --strip-components=1 || exit 1
+      rmdir "$install_path"
     fi
 
-    mkdir -p "$install_path/.npm/lib/node_modules/.hooks"
-    cp "$(dirname "$(dirname "$0")")"/npm-hooks/* "$install_path/.npm/lib/node_modules/.hooks/"
-    chmod +x "$install_path"/.npm/lib/node_modules/.hooks/*
-  )
+    >&2 echo "Linking \"$version_query\" to \"$version\""
+    ln -s "$(asdf where "$ASDF_PLUGIN_NAME" "$version")" "$install_path" 
+  else
+    ## Do this first as it is fast but could fail.
+    download_and_verify_checksums "$install_type" "$version" "$tmp_download_dir"
+
+    local archive_path
+    archive_path="${tmp_download_dir}/$(get_archive_file_name "$install_type" "$version")"
+    download_file "$(get_download_url "$install_type" "$version")" "${archive_path}" \
+      || die "Binary not found for version $version"
+
+    verify_archive "$tmp_download_dir"
+
+    # running this in a subshell
+    # we don't want to disturb current working dir
+    (
+      if [ "$install_type" != "version" ]; then
+        tar zxf "$archive_path" -C "$install_path" --strip-components=1 || exit 1
+        cd "$install_path" || exit 1
+
+        local configure_options
+        configure_options="$(construct_configure_options "$install_path")"
+
+        # shellcheck disable=SC2086
+        ./configure $configure_options || exit 1
+        make
+        make install
+
+        if [ $? -ne 0 ]; then
+          rm -rf "$install_path"
+          exit 1
+        fi
+      else
+        tar zxf "$archive_path" -C "$install_path" --strip-components=1 || exit 1
+      fi
+
+      mkdir -p "$install_path/.npm/lib/node_modules/.hooks"
+      cp "$(dirname "$(dirname "$0")")"/npm-hooks/* "$install_path/.npm/lib/node_modules/.hooks/"
+      chmod +x "$install_path"/.npm/lib/node_modules/.hooks/*
+    )
+  fi
 }
 
 
@@ -64,7 +83,6 @@ resolve_version_query() {
   )"
 
   if ! [ -z "$aliased" ]; then
-    >&2 echo "Installing alias $version_query as $aliased"
     echo "$aliased"
   else
     echo "$version_query"
