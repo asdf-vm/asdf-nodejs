@@ -8,6 +8,8 @@ then
   NODEJS_ORG_MIRROR=$NODEJS_ORG_MIRROR/
 fi
 
+ASDF_NODEJS_KEYRING=asdf-nodejs.gpg
+
 # TODO: Replace with an asdf variable once asdf starts providing the plugin name
 # as a variable
 plugin_name() {
@@ -18,8 +20,6 @@ die() {
   >&2 echo "$@"
   exit 1
 }
-
-ASDF_NODEJS_KEYRING=asdf-nodejs.gpg
 
 # TODO: implement a cache for the tab. The api supports If-None-Match and
 # If-Modified-Since HTTP headers
