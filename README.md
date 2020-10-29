@@ -34,6 +34,12 @@ Import the Node.js release team's OpenPGP keys to main keyring:
 bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-release-team-keyring'
 ```
 
+If you are trying to install a previous release and facing any issue about verification, import the Node.js previous release team's OpenPGP keys to main keyring:
+
+```bash
+bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-previous-release-team-keyring'
+```
+
 ## Use
 
 Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to install & manage versions of Node.js.
