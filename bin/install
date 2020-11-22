@@ -86,6 +86,7 @@ get_nodejs_machine_hardware_name() {
 
   case "$machine_hardware_name" in
     'x86_64') local cpu_type="x64";;
+    'amd64') local cpu_type="x64";;
     'i686') local cpu_type="x86";;
     'aarch64') local cpu_type="arm64";;
     *) local cpu_type="$machine_hardware_name";;
