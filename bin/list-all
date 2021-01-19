@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
+set -o nounset -o pipefail -o errexit
+
+# shellcheck source=../lib/utils.sh
+source "$(dirname "$0")/../lib/utils.sh"
+
+# Print
 echo $(
-  curl --silent https://semver.io/node/versions \
-  | grep -E -v '^0\.([0-9])\.'
+  # Only print the first column of candidates
+  print_index_tab | filter_version_candidates | awk -F'\t' '{ print $1 }' | tac
 )
