@@ -1,3 +1,4 @@
+#! /usr/bin/env bash
 # Helper functions
 
 # When in China, set $NODEJS_ORG_MIRROR:
@@ -27,51 +28,40 @@ print_index_tab() {
   curl --silent "${NODEJS_ORG_MIRROR}index.tab"
 }
 
+# Tab file needs to be piped as stdin
 # Print all alias and correspondent versions in the format "$alias\t$version"
-# Also prints versions as a alias of itself. Eg: "v10.0.0	v10.0.0"
+# Also prints versions as a alias of itself. Eg: "v10.0.0\tv10.0.0"
 filter_version_candidates() {
-  awk -F'\t' '
-    # First line is the headers for the columns
-    NR == 1 {
-      for (i = 1; i <= NF; i++) {
-        cols[cols_size++] = $i
-      }
+  local curr_line=""
+  local -A aliases
 
-      # Skip first line because we got all the information already
-      next
-    }
+  # Skip headers
+  IFS= read -r curr_line
 
-    # Add a global variable `record` with the current line version
-    # using the headers as fields
-    {
-      for (i = 1; i < NF; i++) {
-        record[cols[i - 1]] = $i
-      }
-    }
+  while IFS= read -r curr_line; do
+    # Just expanding the string should work because tabs are considered array separators
+    local -a fields=($curr_line)
 
-    {
-      # Version without the `v` prefix
-      vers = substr(record["version"], 2) 
+    # Version without `v` prefix
+    local version="${fields[0]#v}"
+    # Lowercase lts codename, `-` if not a lts version
+    local lts="${fields[9],,}"
 
-      # We need to check if the lts alias is in a variable because multiple versions
-      # have the same alias, we want to print only the most recent
-      if (record["lts"] != "-") {
+    if [ "$lts" != - ]; then
+      # No lts read yet, so this must be the more recent
+      if [ -z "${aliases[lts]:-}" ]; then
+        printf "lts\t%s\n" "$version"
+        aliases[lts]="$version"
+      fi
 
-        # Check if lts is already printed, if not print it as version candidate and
-        # put it at the aliases map
-        if (!("lts" in aliases)) {
-          aliases["lts"] = vers
-          print "lts\t" vers
-        }
+      # No lts read for this codename yet, so this must be the more recent
+      if [ -z "${aliases[$lts]:-}" ]; then
+        printf "lts-$lts\t%s\n" "$version"
+        aliases[$lts]="$version"
+      fi
+    fi
 
-        lts_alias = "lts-" tolower(record["lts"])
-        if (!(lts_alias in aliases)) {
-          aliases[lts_alias] = vers
-          print lts_alias "\t" vers
-        }
-      }
-
-      print vers "\t" vers
-    }
-  '
+    printf "%s\t%s\n" "$version" "$version"
+  done
 }
+
