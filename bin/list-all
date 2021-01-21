@@ -8,5 +8,5 @@ source "$(dirname "$0")/../lib/utils.sh"
 # Print
 echo $(
   # Only print the first column of candidates
-  print_index_tab | filter_version_candidates | awk -F'\t' '{ print $1 }' | tac
+  print_index_tab | filter_version_candidates | cut -f1 | tac
 )
