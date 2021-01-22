@@ -1,4 +1,3 @@
-#! /usr/bin/env bash
 # Helper functions
 
 # When in China, set $NODEJS_ORG_MIRROR:
