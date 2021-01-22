@@ -3,8 +3,17 @@
 # shellcheck source=../lib/utils.sh
 source "$(dirname "$0")/../lib/utils.sh"
 
-if [ "$ASDF_SKIP_RESHIM" == "1" ]; then
-  echo "Run 'asdf reshim $(plugin_name) ${ASDF_INSTALL_VERSION:-$npm_config_node_version}' after installing the packages to reshim"
-else
-  asdf reshim "$(plugin_name)" "${ASDF_INSTALL_VERSION:-$npm_config_node_version}"
+# If the command contains this package it should be the last
+# Or one of multiples packages being installed/removed
+# There's no problem executing it more than once
+if grep -qw "$npm_package_name" <<< "$npm_config_argv" ; then
+  plgn_name="$(plugin_name)"
+  current_version="$(asdf current $plgn_name)"
+
+  if [ "$ASDF_SKIP_RESHIM" == "1" ]; then
+    echo "Run 'asdf reshim $plgn_name $current_version' after installing the packages to reshim"
+  else
+    echo "Reshiming npm packages..."
+    asdf reshim "$plgn_name" "$current_version"
+  fi
 fi
