@@ -6,9 +6,9 @@ source "$(dirname "$0")/../lib/utils.sh"
 # If the command contains this package it should be the last
 # Or one of multiples packages being installed/removed
 # There's no problem executing it more than once
-if grep -qw "$npm_package_name" <<< "$npm_config_argv" ; then
+if grep -qFw "\"$npm_package_name\"" <<< "$npm_config_argv"; then
   plgn_name="$(plugin_name)"
-  current_version="$(asdf current $plgn_name | awk '{ print $2 }')"
+  current_version="${ASDF_INSTALL_VERSION:-$(asdf current "$plgn_name" | awk '{ print $2 }')}"
 
   if [ "$ASDF_SKIP_RESHIM" == "1" ]; then
     echo "Run 'asdf reshim $plgn_name $current_version' after installing the packages to reshim"
