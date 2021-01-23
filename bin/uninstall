@@ -1,0 +1,26 @@
+#! /usr/bin/env bash
+
+remove_broken_links() {
+  local installs_path="$1"
+
+  # Remove all broken links from the installs dir
+  for dir in "$installs_path"/*; do
+    if [ -L "$dir" ] && ! [ -e "$dir" ]; then
+      rm "$dir"
+      printf "Alias \`%s\` uninstalled\n" "$(basename "$dir")"
+    fi
+  done
+}
+
+remove_version() {
+  local version="$1"
+  local install_path="$2"
+
+  rm -rf "$install_path"
+  printf "Version \`%s\` uninstalled\n" "$version"
+
+  remove_broken_links "$(dirname "$install_path")"
+}
+
+remove_version "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
+
