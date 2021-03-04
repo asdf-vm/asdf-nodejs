@@ -35,10 +35,24 @@ install_canon_version() {
 
   local archive_path
   archive_path="${tmp_download_dir}/$(get_archive_file_name "$install_type" "$version")"
-  download_file "$(get_download_url "$install_type" "$version")" "${archive_path}" \
-    || die "Binary not found for version $version"
 
-  verify_archive "$tmp_download_dir"
+  local download_result=0
+  download_file "$(get_download_url "$install_type" "$version")" "${archive_path}" \
+    || download_result=$?
+
+  if [ $download_result != 0 ]; then
+    if [ "$install_type" = "ref" ]; then
+      die "Source code not found for version $version"
+    fi
+
+    echo "Binary not found for version $version. Falling back to source code"
+    install_type="ref"
+
+    download_file "$(get_download_url "$install_type" "$version")" "${archive_path}" \
+      || die "Source code not found for version $version"
+  else
+    verify_archive "$tmp_download_dir"
+  fi
 
   # running this in a subshell
   # we don't want to disturb current working dir
@@ -68,7 +82,6 @@ install_canon_version() {
     chmod +x "$install_path"/.npm/lib/node_modules/.hooks/*
   )
 }
-
 
 install_aliased_version() {
   local version=$1
@@ -150,7 +163,7 @@ download_file() {
   local download_url="$1"
   local download_path="$2"
 
-  STATUSCODE=$(curl --write-out "%{http_code}" -Lo "$download_path" -C - "$download_url")
+  STATUSCODE=$(curl --write-out "%{http_code}" -Lo "$download_path" "$download_url")
 
   if test $STATUSCODE -eq 404; then
     return 1
@@ -167,7 +180,7 @@ get_archive_file_name() {
   if [ "$install_type" = "version" ]; then
     pkg_name="node-v${version}-$(uname -s | tr '[:upper:]' '[:lower:]')-$(get_nodejs_machine_hardware_name)"
   else
-    pkg_name="${version}"
+    pkg_name="v${version}"
   fi
 
   echo "${pkg_name}.tar.gz"
