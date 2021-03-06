@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# simulate tac on macOS
+if [[ $(uname -s) = Darwin ]]; then
+  tac() {
+    tail -r "$@"
+  }
+fi
+
 set -o nounset -o pipefail -o errexit
 
 # shellcheck source=../lib/utils.sh
