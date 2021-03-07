@@ -43,7 +43,7 @@ filter_version_candidates() {
     # Version without `v` prefix
     local version="${fields[0]#v}"
     # Lowercase lts codename, `-` if not a lts version
-    local lts_codename="${fields[9],,}"
+    local lts_codename=$(echo "${fields[9]}" | tr '[:upper:]' '[:lower:]')
 
     if [ "$lts_codename" != - ]; then
       # No lts read yet, so this must be the more recent
