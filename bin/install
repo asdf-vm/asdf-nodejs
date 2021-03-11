@@ -241,6 +241,9 @@ download_and_verify_checksums() {
         export GNUPGHOME="${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs"
       fi
 
+      # Automatically add needed PGP keys
+      "$(dirname "$0")/import-release-team-keyring"
+
       if ! $gnugp_verify_command_name --no-default-keyring --keyring "${ASDF_NODEJS_KEYRING}" --display-charset utf-8 --verify "$signed_checksum_file" 2>/dev/null; then
         # Try default keyring
         if ! $gnugp_verify_command_name --display-charset utf-8 --verify "$signed_checksum_file" 2>/dev/null; then
