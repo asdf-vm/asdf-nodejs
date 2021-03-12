@@ -77,7 +77,7 @@ The `bash` script mentioned in [the installation instructions](#install) (`impor
 To use a dedicated keyring, prepare the dedicated keyring and set it as the default keyring in the current shell:
 
 ```bash
-export GNUPGHOME="${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs" && mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
+export GNUPGHOME="${ASDF_DATA_DIR:-$HOME/.asdf}/keyrings/nodejs" && mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
 
 # Imports Node.js release team's OpenPGP keys to the keyring
 bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
