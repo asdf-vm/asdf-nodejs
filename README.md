@@ -9,8 +9,7 @@ Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 ## Requirements
 
 
-### MacOS
-* [GNU Core Utils](http://www.gnu.org/software/coreutils/coreutils.html) - `brew install coreutils`
+### macOS
 * [GnuPG](http://www.gnupg.org) - `brew install gpg`
 * awk - any posix compliant implementation (tested on gawk `brew install gawk`)
 
