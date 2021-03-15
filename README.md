@@ -23,16 +23,10 @@ Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 
 ## Install
 
-Install the plugin:
+After installing [asdf](https://github.com/asdf-vm/asdf), install the plugin by running:
 
 ```bash
-asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-```
-
-The plugin now automatically imports the NodeJS release team's OpenPGP keys. If you are trying to install a previous release and facing any issue about verification, import the Node.js previous release team's OpenPGP keys to main keyring:
-
-```bash
-bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-previous-release-team-keyring'
+asdf plugin-add nodejs 
 ```
 
 ## Use
@@ -65,6 +59,14 @@ express
 ```
 
 You can specify a non-default location of this file by setting a `ASDF_NPM_DEFAULT_PACKAGES_FILE` variable.
+
+## Problems with OpenPGP signatures in older versions
+
+The plugin automatically imports the NodeJS release team's OpenPGP keys. If you are trying to install a previous release and facing any issue about verification, import the Node.js previous release team's OpenPGP keys to main keyring:
+
+```bash
+bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-previous-release-team-keyring'
+```
 
 ## Temporarily disable reshimming
 
