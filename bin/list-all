@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # simulate tac on macOS
-if [[ $(uname -s) = Darwin ]]; then
+if [[ $(uname -s) = Darwin ]] && ! command -v tac &>/dev/null; then
   tac() {
     tail -r "$@"
   }
