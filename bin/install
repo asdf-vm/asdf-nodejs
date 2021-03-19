@@ -237,8 +237,8 @@ download_and_verify_checksums() {
     fi
 
     (
-      if [ -z "${GNUPGHOME:-}" ] && [ -d "${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs" ]; then
-        export GNUPGHOME="${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs"
+      if [ -z "${GNUPGHOME:-}" ] && [ -d "${ASDF_DATA_DIR:-$HOME/.asdf}/keyrings/nodejs" ]; then
+        export GNUPGHOME="${ASDF_DATA_DIR:-$HOME/.asdf}/keyrings/nodejs"
       fi
 
       # Automatically add needed PGP keys
