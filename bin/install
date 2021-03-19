@@ -181,7 +181,7 @@ get_download_url() {
   if [ "$install_type" = "version" ]; then
     local download_url_base="${NODEJS_ORG_MIRROR}v${version}"
   else
-    local download_url_base="https://github.com/nodejs/node/archive"
+    local download_url_base="https://github.com/nodejs/node/archive/refs/tags"
   fi
 
   echo "${download_url_base}/$(get_archive_file_name "$install_type" "$version")"
