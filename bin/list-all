@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # simulate tac on macOS
-if [[ $(uname -s) = Darwin ]] && ! command -v tac &>/dev/null; then
+if ! command -v tac &>/dev/null; then
   tac() {
-    tail -r "$@"
+    cat -n "$@" | sort -nrk1 | cut -f2-
   }
 fi
 
