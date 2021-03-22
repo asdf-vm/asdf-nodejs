@@ -60,32 +60,24 @@ filter_version_candidates() {
 versions_cache_dir=~/.asdf/tmp/$(plugin_name)/cache
 mkdir -p $versions_cache_dir
 
-expire_file="$versions_cache_dir/expires"
+etag_file="$versions_cache_dir/etag"
 index_file="$versions_cache_dir/index"
-touch "$expire_file" "$index_file"
+touch "$etag_file" "$index_file"
 
-check_cache_expired() {
-  current_time="$(date '+%s')"
-  expire_time="$(<$expire_file)"
-  [ "${expire_time:-0}" -le "${current_time:-0}" ]
-}
-cache_index_tab(){
-  local index_tab_url="${NODEJS_ORG_MIRROR}index.tab"
-  # Cache expired or doesn't exist: refetch
-  output="$(curl --fail --silent "$index_tab_url" 2>&1)"
-  if [ "$?" -ne 0 ]; then
-    die "Failed to fetch index.tab: $output"
+print_index_tab(){
+  local temp_headers_file="$(mktemp)"
+
+  if [ -f "$etag_file" ]; then
+    etag_flag='--header If-None-Match:'"$(cat "$etag_file")"
   fi
-  echo "$output" | filter_version_candidates > "$index_file"
-  curl --fail --silent --head "$index_tab_url" |
-    awk -v time="$(date '+%s')" '
-        /^age: /{age=int(substr($0, 5))};
-        /cache-control: /{max=int(substr($0, match($0, /max-age=/)+8))};
-        END{print int(time) + max - age}' \
-          > "$expire_file"
-}
 
-print_index_tab() {
-  check_cache_expired && cache_index_tab
-  cat <"$index_file"
+  index="$(curl --fail --silent --dump-header "$temp_headers_file" $etag_flag  "${NODEJS_ORG_MIRROR}index.tab")"
+  if [ -z "$index" ]; then
+    cat "$index_file"
+  else
+    cat "$temp_headers_file" | awk '/^etag: /{print(substr($0, 7))}' > "$etag_file"
+    echo "$index" | filter_version_candidates | tee "$index_file"
+  fi
+
+  rm "$temp_headers_file"
 }
