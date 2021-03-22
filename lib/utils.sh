@@ -21,12 +21,6 @@ die() {
   exit 1
 }
 
-# TODO: implement a cache for the tab. The api supports If-None-Match and
-# If-Modified-Since HTTP headers
-print_index_tab() {
-  curl --silent "${NODEJS_ORG_MIRROR}index.tab"
-}
-
 # Tab file needs to be piped as stdin
 # Print all alias and correspondent versions in the format "$alias\t$version"
 # Also prints versions as a alias of itself. Eg: "v10.0.0\tv10.0.0"
@@ -63,3 +57,35 @@ filter_version_candidates() {
   done
 }
 
+versions_cache_dir=~/.asdf/tmp/$(plugin_name)/cache
+mkdir -p $versions_cache_dir
+
+expire_file="$versions_cache_dir/expires"
+index_file="$versions_cache_dir/index"
+touch "$expire_file" "$index_file"
+
+check_cache_expired() {
+  current_time="$(date '+%s')"
+  expire_time="$(<$expire_file)"
+  [ "${expire_time:-0}" -le "${current_time:-0}" ]
+}
+cache_index_tab(){
+  local index_tab_url="${NODEJS_ORG_MIRROR}index.tab"
+  # Cache expired or doesn't exist: refetch
+  output="$(curl --fail --silent "$index_tab_url" 2>&1)"
+  if [ "$?" -ne 0 ]; then
+    die "Failed to fetch index.tab: $output"
+  fi
+  echo "$output" | filter_version_candidates > "$index_file"
+  curl --fail --silent --head "$index_tab_url" |
+    awk -v time="$(date '+%s')" '
+        /^age: /{age=int(substr($0, 5))};
+        /cache-control: /{max=int(substr($0, match($0, /max-age=/)+8))};
+        END{print int(time) + max - age}' \
+          > "$expire_file"
+}
+
+print_index_tab() {
+  check_cache_expired && cache_index_tab
+  cat <"$index_file"
+}
