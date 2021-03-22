@@ -57,7 +57,7 @@ filter_version_candidates() {
   done
 }
 
-versions_cache_dir=~/.asdf/tmp/$(plugin_name)/cache
+versions_cache_dir="${ASDF_DATA_DIR:-${ASDF_HOME:-$HOME/.asdf}}/tmp/$(plugin_name)/cache"
 mkdir -p $versions_cache_dir
 
 etag_file="$versions_cache_dir/etag"
