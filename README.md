@@ -6,21 +6,17 @@ Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 
 ## About
 
-Under the hood, asdf-nodejs will use [node-build](https://github.com/nodenv/node-build)
+Under the hood, asdf-nodejs will install if missing and use [node-build](https://github.com/nodenv/node-build) that will by default fetch ready made binaries.
 
 ## Requirements
 
 ### macOS
-* __Optional__ [node-build](https://github.com/nodenv/node-build) - `brew install node-build`
-* shasum, openssl, or sha256sum
+* Batteries included!
 
-### Linux (Debian)
-
-* [dirmngr](https://packages.debian.org/sid/dirmngr) - `apt-get install dirmngr`
-* [GnuPG](http://www.gnupg.org) - `apt-get install gpg`
+### Linux
 * `awk` - any posix compliant implementation (tested on gawk `apt-get install gawk`)
-* `aria2c`, `curl`, or `wget` - `apt-get install curl`
-* `shasum`, `openssl`, or `sha256sum`
+* `curl`, `wget` or `aria2c` - `apt-get install curl`
+* `openssl`, `shasum`, or `sha256sum`
 
 ## Install
 
@@ -35,8 +31,6 @@ asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 
 To build from source, make sure [all requisite libraries](https://github.com/nodejs/node/blob/master/BUILDING.md#unix-and-macos) are available.
 
-Under the hood, asdf-nodejs uses [node-build](https://github.com/nodenv/node-build) that will by default fetch ready made binaries.
-
 When installing Node.js using `asdf install`, you can pass custom configure options with the following env vars:
 
 #### Building from source
@@ -46,7 +40,6 @@ When installing Node.js using `asdf install`, you can pass custom configure opti
 
 And additional [build options](https://github.com/nodenv/node-build#custom-build-configuration).
 
-
 #### Additional options
 * `ASDF_NPM_DEFAULT_PACKAGES_FILE` - Defaults `default-npm-packages`
 * `ASDF_SKIP_RESHIM`               - Defaults to 1, for skipping reshim on installs.
@@ -54,8 +47,6 @@ And additional [build options](https://github.com/nodenv/node-build#custom-build
 * `ASDF_NODE_BUILD_MIRROR_URL`     - Defaults to official mirror `https://nodejs.org/dist/`.
 
 If you are in China, you can set it to `ASDF_NODE_BUILD_MIRROR_URL=https://npm.taobao.org/mirrors/node/`.
-
-
 
 
 ### `.nvmrc` and `.node-version` files
