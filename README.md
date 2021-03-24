@@ -74,10 +74,10 @@ To avoid a slowdown when installing large packages (see https://github.com/asdf-
 
 The `bash` script mentioned in [the installation instructions](#install) (`import-release-team-keyring`) imports the OpenPGP public keys in your main OpenPGP keyring. However, you can also use a dedicated keyring in order to mitigate [this issue](https://github.com/nodejs/node/issues/9859).
 
-To use a dedicated keyring, prepare the dedicated keyring and set it as the default keyring in the current shell:
+To use a dedicated keyring, prepare the dedicated keyring directory and set it as the default keyring in the current shell:
 
 ```bash
-export GNUPGHOME="${ASDF_DATA_DIR:-$HOME/.asdf}/keyrings/nodejs" && mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
+export ASDF_NODEJS_KEYRING_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}/keyrings/nodejs" && mkdir -p "$ASDF_NODEJS_KEYRING_DIR" && chmod 0700 "$ASDF_NODEJS_KEYRING_DIR"
 
 # Imports Node.js release team's OpenPGP keys to the keyring
 bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
@@ -86,11 +86,13 @@ bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
 Again, if you used `brew` to manage the `asdf` installation use the following bash commands:
 
 ```bash
-export GNUPGHOME="bash /usr/local/opt/asdf/keyrings/nodejs" && mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
+export ASDF_NODEJS_KEYRING_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}/keyrings/nodejs" && mkdir -p "$ASDF_NODEJS_KEYRING_DIR" && chmod 0700 "$ASDF_NODEJS_KEYRING_DIR"
 
 # Imports Node.js release team's OpenPGP keys to the keyring
 bash /usr/local/opt/asdf/plugins/nodejs/bin/import-release-team-keyring
 ```
+
+It is of course possible to override the directory by setting `$ASDF_NODEJS_KEYRING_DIR` as desired; however, that must be set every time any attempt to install NodeJS is made, instead of just when the initial keyring import is done.
 
 #### Related notes
 

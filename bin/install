@@ -238,10 +238,15 @@ download_and_verify_checksums() {
 
     (
       if [ -z "${GNUPGHOME:-}" ]; then
-        if [ -d "${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs" ]; then
-          export GNUPGHOME="${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs"
-        elif [ -d "${ASDF_DATA_DIR:-$HOME/.asdf}/keyrings/nodejs" ]; then
-          export GNUPGHOME="${ASDF_DATA_DIR:-$HOME/.asdf}/keyrings/nodejs"
+        if [ -n "${ASDF_NODEJS_KEYRING_DIR:-}" ]; then
+          export GNUPGHOME="$ASDF_NODEJS_KEYRING_DIR"
+        else
+          for dir in "${ASDF_DATA_DIR:-$HOME/.asdf}" "${ASDF_DIR:-$HOME/.asdf}" ;do
+            if [ -d "$dir/keyrings/nodejs" ]; then
+              export GNUPGHOME="$dir/keyrings/nodejs"
+              break
+            fi
+          done
         fi
       fi
 
