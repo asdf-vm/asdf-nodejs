@@ -4,6 +4,7 @@ install_path=$1
 cmd=$2
 executable_path=$3
 
+
 if [[ "$cmd" == "npm" ]] || [[ "$cmd" == "npx" ]]; then
   npm_bin_cmd=".npm/bin/$cmd"
 

@@ -4,22 +4,23 @@
 
 Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 
-*The plugin properly validates OpenPGP signatures to check the authenticity of the package. Requires `gpg` to be available during package installs*
+## About
+
+Under the hood, asdf-nodejs will use [node-build](https://github.com/nodenv/node-build)
 
 ## Requirements
 
-
 ### macOS
-* [GnuPG](http://www.gnupg.org) - `brew install gpg`
-* awk - any posix compliant implementation (tested on gawk `brew install gawk`)
+* __Optional__ [node-build](https://github.com/nodenv/node-build) - `brew install node-build`
+* shasum, openssl, or sha256sum
 
 ### Linux (Debian)
 
-* [dirmngr](https://packages.debian.org/sid/dirmngr) - `apt-get install
-  dirmngr`
+* [dirmngr](https://packages.debian.org/sid/dirmngr) - `apt-get install dirmngr`
 * [GnuPG](http://www.gnupg.org) - `apt-get install gpg`
-* [curl](https://curl.haxx.se) - `apt-get install curl`
-* awk - any posix compliant implementation (tested on gawk `apt-get install gawk`)
+* `awk` - any posix compliant implementation (tested on gawk `apt-get install gawk`)
+* `aria2c`, `curl`, or `wget` - `apt-get install curl`
+* `shasum`, `openssl`, or `sha256sum`
 
 ## Install
 
@@ -29,22 +30,33 @@ Install the plugin:
 asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 ```
 
-The plugin now automatically imports the NodeJS release team's OpenPGP keys. If you are trying to install a previous release and facing any issue about verification, import the Node.js previous release team's OpenPGP keys to main keyring:
-
-```bash
-bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-previous-release-team-keyring'
-```
 
 ## Use
 
-Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to install & manage versions of Node.js.
+To build from source, make sure [all requisite libraries](https://github.com/nodejs/node/blob/master/BUILDING.md#unix-and-macos) are available.
+
+Under the hood, asdf-nodejs uses [node-build](https://github.com/nodenv/node-build) that will by default fetch ready made binaries.
 
 When installing Node.js using `asdf install`, you can pass custom configure options with the following env vars:
 
-* `NODEJS_CONFIGURE_OPTIONS` - use only your configure options
-* `NODEJS_EXTRA_CONFIGURE_OPTIONS` - append these configure options along with ones that this plugin already uses
-* `NODEJS_CHECK_SIGNATURES` - `strict` is default. Other values are `no` and `yes`. Checks downloads against OpenPGP signatures from the Node.js release team.
-* `NODEJS_ORG_MIRROR` - official mirror `https://nodejs.org/dist/` is default. If you are in China, you can set it to `https://npm.taobao.org/mirrors/node/`.
+#### Building from source
+* `NODE_CONFIGURE_OPTS`     - `./configure`
+* `NODE_MAKE_OPTS`          - `make`
+* `NODE_MAKE_INSTALL_OPTS`  - `make install`
+
+And additional [build options](https://github.com/nodenv/node-build#custom-build-configuration).
+
+
+#### Additional options
+* `ASDF_NPM_DEFAULT_PACKAGES_FILE` - Defaults `default-npm-packages`
+* `ASDF_SKIP_RESHIM`               - Defaults to 1, for skipping reshim on installs.
+* `ASDF_NODE_BUILD_VERSION`        - Defaults to `v4.9.33`
+* `ASDF_NODE_BUILD_MIRROR_URL`     - Defaults to official mirror `https://nodejs.org/dist/`.
+
+If you are in China, you can set it to `ASDF_NODE_BUILD_MIRROR_URL=https://npm.taobao.org/mirrors/node/`.
+
+
+
 
 ### `.nvmrc` and `.node-version` files
 
@@ -70,35 +82,23 @@ You can specify a non-default location of this file by setting a `ASDF_NPM_DEFAU
 
 To avoid a slowdown when installing large packages (see https://github.com/asdf-vm/asdf-nodejs/issues/46), you can `ASDF_SKIP_RESHIM=1 npm i -g <package>` and reshim after installing all packages using `asdf reshim nodejs`.
 
-## Using a dedicated OpenPGP keyring
+## Checksum Verification
+node-build will attempt to construct a mirror url by invoking `NODE_BUILD_MIRROR_CMD` with two arguments: `package_url` and `checksum`. If `NODE_BUILD_MIRROR_CMD` is unset, package mirror URL construction defaults to replacing `https://nodejs.org/dist` with `NODE_BUILD_MIRROR_URL`.
 
-The `bash` script mentioned in [the installation instructions](#install) (`import-release-team-keyring`) imports the OpenPGP public keys in your main OpenPGP keyring. However, you can also use a dedicated keyring in order to mitigate [this issue](https://github.com/nodejs/node/issues/9859).
+node-build will first try to fetch this package from `$NODE_BUILD_MIRROR_URL/<SHA2>` (note: this is the complete URL), where `<SHA2>` is the checksum for the file.
 
-To use a dedicated keyring, prepare the dedicated keyring and set it as the default keyring in the current shell:
+It will fall back to downloading the package from the original location if:
 
-```bash
-export GNUPGHOME="${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs" && mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
+* the package was not found on the mirror;
+* the mirror is down;
+* the download is corrupt, i.e. the file's checksum doesn't match;
+* no tool is available to calculate the checksum; or
+* `NODE_BUILD_SKIP_MIRROR` is enabled.
 
-# Imports Node.js release team's OpenPGP keys to the keyring
-bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
-```
+You may specify a custom mirror by setting NODE_BUILD_MIRROR_URL.
 
-Again, if you used `brew` to manage the `asdf` installation use the following bash commands:
-
-```bash
-export GNUPGHOME="bash /usr/local/opt/asdf/keyrings/nodejs" && mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
-
-# Imports Node.js release team's OpenPGP keys to the keyring
-bash /usr/local/opt/asdf/plugins/nodejs/bin/import-release-team-keyring
-```
 
 #### Related notes
 
-* [Verifying Node.js Binaries](https://github.com/nodejs/node#verifying-binaries).
+* [Verifying Node.js Binaries](https://github.com/nodenv/node-build#checksum-verification).
 * Only versions `>=0.10.0` are checked. Before that version, signatures for SHA2-256 hashes might not be provided (and can not be installed with the `strict` setting for that reason).
-
-This behavior can be influenced by the `NODEJS_CHECK_SIGNATURES` env var which supports the following options:
-
-* `strict` - (default): Check signatures/checksums and don’t operate on package versions which did not provide signatures/checksums properly (< 0.10.0).
-* `no` - Do not check signatures/checksums
-* `yes`- Check signatures/checksums if they should be present (enforced for >= 0.10.0)

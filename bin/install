@@ -4,319 +4,41 @@ set -o nounset -o pipefail -o errexit
 
 # shellcheck source=../lib/utils.sh
 source "$(dirname "$0")/../lib/utils.sh"
+ensure_node_build_setup
 
-NODEJS_CHECK_SIGNATURES="${NODEJS_CHECK_SIGNATURES:-strict}"
 
 
 install_nodejs() {
   local install_type="$1"
-  local version_query="$2"
-  local install_path="$3"
-  local tmp_download_dir="$4"
-
-  local version="$(resolve_version_query "$version_query")"
-
-  if [ "$version" != "$version_query" ]; then
-    install_aliased_version "$version"  "$version_query" "$install_path"
-  else
-    install_canon_version "$1" "$version" "$3" "$4"
-  fi
-}
-
-
-install_canon_version() {
-  local install_type="$1"
   local version="$2"
   local install_path="$3"
   local tmp_download_dir="$4"
-
-  ## Do this first as it is fast but could fail.
-  download_and_verify_checksums "$install_type" "$version" "$tmp_download_dir"
-
-  local archive_path
-  archive_path="${tmp_download_dir}/$(get_archive_file_name "$install_type" "$version")"
-  download_file "$(get_download_url "$install_type" "$version")" "${archive_path}" \
-    || die "Binary not found for version $version"
-
-  verify_archive "$tmp_download_dir"
-
-  # running this in a subshell
-  # we don't want to disturb current working dir
-  (
-    if [ "$install_type" != "version" ]; then
-      tar zxf "$archive_path" -C "$install_path" --strip-components=1 || exit 1
-      cd "$install_path" || exit 1
-
-      local configure_options
-      configure_options="$(construct_configure_options "$install_path")"
-
-      # shellcheck disable=SC2086
-      ./configure $configure_options || exit 1
-      make
-      make install
-
-      if [ $? -ne 0 ]; then
-        rm -rf "$install_path"
-        exit 1
-      fi
-    else
-      tar zxf "$archive_path" -C "$install_path" --strip-components=1 || exit 1
-    fi
-
-    mkdir -p "$install_path/.npm/lib/node_modules/.hooks"
-    cp "$(dirname "$(dirname "$0")")"/npm-hooks/* "$install_path/.npm/lib/node_modules/.hooks/"
-    chmod +x "$install_path"/.npm/lib/node_modules/.hooks/*
-  )
-}
-
-
-install_aliased_version() {
-  local version=$1
-  local version_query=$2
-  local install_path=$3
-
-  # install the true version and only symlink it to the alias
-  >&2 echo "Installing alias $version_query as $version"
-  asdf install "$(plugin_name)" "$version" \
-    || die "Could not install version $version"
-
-  if [ -L "$install_path" ]; then
-    rm "$install_path"
-  else
-    rmdir "$install_path"
-  fi
-
-  >&2 echo "Linking \"$version_query\" to \"$version\""
-  ln -s "$(asdf where "$(plugin_name)" "$version")" "$install_path" 
-}
-
-
-resolve_version_query() {
-  local version_query="$1"
-
-  local canon_version="$(
-    # Find the first candidate which the alias match, then print it version
-    print_index_tab \
-      | filter_version_candidates \
-      | awk -F'\t' -v "alias=$version_query" '$1 == alias { print $2; exit }'
-  )"
-
-  if [ -z "$canon_version" ]; then
-    echo "$version_query"
-  else
-    echo "$canon_version"
-  fi
-}
-
-
-construct_configure_options() {
-  local install_path="$1"
-
-  if [ -z "${NODEJS_CONFIGURE_OPTIONS:-}" ]; then
-    local configure_options
-    configure_options="--dest-cpu=$(get_nodejs_machine_hardware_name)"
-
-    if [ "${NODEJS_EXTRA_CONFIGURE_OPTIONS:-}" != "" ]; then
-      configure_options="$configure_options ${NODEJS_EXTRA_CONFIGURE_OPTIONS:-}"
-    fi
-  else
-    local configure_options="${NODEJS_CONFIGURE_OPTIONS:-}"
-  fi
-
-  configure_options="$configure_options --prefix=$install_path"
-
-  echo "$configure_options"
-}
-
-
-get_nodejs_machine_hardware_name() {
-  local machine_hardware_name
-  machine_hardware_name="$(uname -m)"
-
-  case "$machine_hardware_name" in
-    'x86_64') local cpu_type="x64";;
-    # For FreeBSD
-    'amd64') local cpu_type="x64";;
-    'i686') local cpu_type="x86";;
-    'aarch64') local cpu_type="arm64";;
-    *) local cpu_type="$machine_hardware_name";;
-  esac
-
-  echo "$cpu_type"
-}
-
-
-download_file() {
-  local download_url="$1"
-  local download_path="$2"
-
-  STATUSCODE=$(curl --write-out "%{http_code}" -Lo "$download_path" -C - "$download_url")
-
-  if test $STATUSCODE -eq 404; then
-    return 1
-  fi
-}
-
-
-get_archive_file_name() {
-  local install_type="$1"
-  local version="$2"
-
-  local pkg_name
-
-  if [ "$install_type" = "version" ]; then
-    pkg_name="node-v${version}-$(uname -s | tr '[:upper:]' '[:lower:]')-$(get_nodejs_machine_hardware_name)"
-  else
-    pkg_name="${version}"
-  fi
-
-  echo "${pkg_name}.tar.gz"
-}
-
-
-get_download_url() {
-  local install_type="$1"
-  local version="$2"
-
-  if [ "$install_type" = "version" ]; then
-    local download_url_base="${NODEJS_ORG_MIRROR}v${version}"
-  else
-    local download_url_base="https://github.com/nodejs/node/archive"
-  fi
-
-  echo "${download_url_base}/$(get_archive_file_name "$install_type" "$version")"
-}
-
-
-get_signed_checksum_download_url() {
-  local install_type=$1
-  local version=$2
-
-  if [ "$install_type" = "version" ]; then
-    echo "${NODEJS_ORG_MIRROR}v${version}/SHASUMS256.txt.asc"
-  else
-    # Not implemented.
+  echo "$install_type"
+  echo "$version"
+  echo "$install_path"
+  echo "$tmp_download_dir"
+  if [ "$install_type" != "version" ]; then
+    echoerr "Cannot install specific ref from source, sorry."
+    echoerr "For a list of available versions, see \`asdf list-all nodejs\`"
+    rm -rf "$install_path"
     exit 1
   fi
-}
 
+  # Disabled for now, since gotta figure out
+  # https://github.com/nodenv/node-build#applying-patches
+  # if [[ -n "${NODE_APPLY_PATCHES:-}" ]]; then
+  #   patches=" --patch $NODE_APPLY_PATCHES "
+  # fi
 
-download_and_verify_checksums() {
-  local install_type="$1"
-  local version="$2"
-  local tmp_download_dir="$3"
+  export NODE_BUILD_BUILD_PATH="${tmp_download_dir:-"$NODE_BUILD_BUILD_PATH"}"
+  local command="$(node_build_executable) "$version" "$install_path" "
+  echo "$command"
+  echo $($command)
 
-  if [ "${NODEJS_CHECK_SIGNATURES}" == "no" ]; then
-    return 0
-  fi
+  mkdir -p "$install_path/.npm/lib/node_modules/.hooks"
+  cp "$(asdf_nodejs_plugin_path)"/npm-hooks/* "$install_path/.npm/lib/node_modules/.hooks/"
+  chmod +x "$install_path"/.npm/lib/node_modules/.hooks/*
 
-  ## Seems nodejs.org started with around 0.10.0 to release properly signed SHA2-256 checksum files.
-  if verlte "0.10.0" "$version"
-  then
-    local signed_checksum_file="$tmp_download_dir/SHASUMS256.txt.asc"
-    local signed_checksum_download_url
-    signed_checksum_download_url="$(get_signed_checksum_download_url "$install_type" "$version")"
-    if [ -z "${signed_checksum_download_url}" ]; then
-      if [ "${NODEJS_CHECK_SIGNATURES}" == "strict" ]; then
-        echo "$version did not provide signed checksums or support for them has not been implemented and NODEJS_CHECK_SIGNATURES=strict is set. Exiting." >&2
-        exit 1
-      else
-        echo "$version did not provide signed checksums or support for them has not been implemented. Continue without signature checking." >&2
-        return 0
-      fi
-    fi
-
-    download_file "${signed_checksum_download_url}" "$signed_checksum_file" \
-      || die "Checksum not found for version $version"
-
-    local gnugp_verify_command_name
-    gnugp_verify_command_name="$(command -v gpg gpg2 | head -n 1 || :)"
-    if [ -z "${gnugp_verify_command_name}" ]; then
-      echo "You should install GnuPG to verify the authenticity of the downloaded archives: https://www.gnupg.org/" >&2
-      exit 1
-    fi
-
-    (
-      if [ -z "${GNUPGHOME:-}" ] && [ -d "${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs" ]; then
-        export GNUPGHOME="${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs"
-      fi
-
-      # Automatically add needed PGP keys
-      "$(dirname "$0")/import-release-team-keyring"
-
-      if ! $gnugp_verify_command_name --no-default-keyring --keyring "${ASDF_NODEJS_KEYRING}" --display-charset utf-8 --verify "$signed_checksum_file" 2>/dev/null; then
-        # Try default keyring
-        if ! $gnugp_verify_command_name --display-charset utf-8 --verify "$signed_checksum_file" 2>/dev/null; then
-          echo "Authenticity of checksum file can not be assured! Please be sure to check the README of asdf-nodejs in case you did not yet import the needed PGP keys. If you already did that then that is the point to become SUSPICIOUS! There must be a reason why this is failing. If you are installing an older NodeJS version you might need to import OpenPGP keys of previous release managers. Exiting." >&2
-          exit 1
-        fi
-      fi
-      ## Mitigates: https://github.com/nodejs/node/issues/6821
-      local authentic_checksum_file="$tmp_download_dir/authentic_SHASUMS256.txt"
-      $gnugp_verify_command_name --no-default-keyring --keyring "${ASDF_NODEJS_KEYRING}" --yes --output "${authentic_checksum_file}" --decrypt "$signed_checksum_file" 2>/dev/null ||
-        $gnugp_verify_command_name --yes --output "${authentic_checksum_file}" --decrypt "$signed_checksum_file" 2>/dev/null
-    )
-  elif [ "${NODEJS_CHECK_SIGNATURES}" == "strict" ]; then
-    echo "$version did not provide signed checksums or support for them has not been implemented and NODEJS_CHECK_SIGNATURES=strict is set. Exiting." >&2
-    exit 1
-  fi
-}
-
-checkShasum ()
-{
-  local archive_file_name="${1}"
-  local authentic_checksum_file="${2}"
-
-  if $(command -v sha256sum >/dev/null 2>&1); then
-    sha256sum \
-      -c <(grep "\s${archive_file_name}$" "${authentic_checksum_file}")
-  elif $(command -v shasum >/dev/null 2>&1); then
-    shasum \
-      -a 256 \
-      -c <(grep "\s${archive_file_name}$" "${authentic_checksum_file}")
-  else
-    echo "sha256sum or shasum is not available for use" >&2
-    return 1
-  fi
-}
-
-verify_archive() {
-  local tmp_download_dir="$1"
-
-  local authentic_checksum_file="$tmp_download_dir/authentic_SHASUMS256.txt"
-
-  if [ "${NODEJS_CHECK_SIGNATURES}" == "no" ]; then
-    return 0
-  fi
-
-  if [ "${NODEJS_CHECK_SIGNATURES}" == "yes" ] && [ ! -e "${authentic_checksum_file}" ]; then
-    return 0
-  fi
-
-  if verlte "0.10.0" "$version"
-  then
-    local archive_file_name
-    archive_file_name="$(basename "$(get_download_url "$install_type" "$version")")"
-
-    (
-      cd "${tmp_download_dir}"
-      if ! checkShasum "$archive_file_name" "$authentic_checksum_file"; then
-        echo "Authenticity of package archive can not be assured. Exiting." >&2
-        exit 1
-      fi
-    )
-  fi
-}
-
-# stolen from https://github.com/rbenv/ruby-build/pull/631/files#diff-fdcfb8a18714b33b07529b7d02b54f1dR942
-function sort_versions() {
-  sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' | \
-    LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
-}
-
-verlte() {
-  ## https://stackoverflow.com/questions/4023830/how-compare-two-strings-in-dot-separated-version-format-in-bash/4024263#4024263
-  [  "$1" = "$(echo -e "$1\n$2" | sort_versions | head -n1)" ]
 }
 
 install_default_npm_packages() {
@@ -336,10 +58,9 @@ install_default_npm_packages() {
   done
 }
 
-tmp_download_dir="$(mktemp -d -t 'asdf_nodejs_XXXXXX')"
-trap 'rm -rf "${tmp_download_dir}"' EXIT
 
-install_nodejs "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH" "$tmp_download_dir"
-ASDF_SKIP_RESHIM=1 install_default_npm_packages
 
-asdf reshim "$(plugin_name)" "$ASDF_INSTALL_VERSION"
+ install_nodejs "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH" "$ASDF_DOWNLOAD_PATH"
+ ASDF_SKIP_RESHIM=1 install_default_npm_packages
+
+ asdf reshim "$(plugin_name)" "$ASDF_INSTALL_VERSION"
