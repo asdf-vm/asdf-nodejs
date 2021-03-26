@@ -13,10 +13,7 @@ install_nodejs() {
   local version="$2"
   local install_path="$3"
   local tmp_download_dir="$4"
-  echo "$install_type"
-  echo "$version"
-  echo "$install_path"
-  echo "$tmp_download_dir"
+
   if [ "$install_type" != "version" ]; then
     echoerr "Cannot install specific ref from source, sorry."
     echoerr "For a list of available versions, see \`asdf list-all nodejs\`"

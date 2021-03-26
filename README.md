@@ -14,7 +14,6 @@ Under the hood, asdf-nodejs will install if missing and use [node-build](https:/
 * Batteries included!
 
 ### Linux
-* `awk` - any posix compliant implementation (tested on gawk `apt-get install gawk`)
 * `curl`, `wget` or `aria2c` - `apt-get install curl`
 * `openssl`, `shasum`, or `sha256sum`
 

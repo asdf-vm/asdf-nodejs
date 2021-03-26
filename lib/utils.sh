@@ -1,4 +1,4 @@
-export NODE_BUILD_VERSION="${ASDF_NODE_BUILD_VERSION:-v4.9.33}"
+export NODE_BUILD_VERSION="${ASDF_NODE_BUILD_VERSION:-v4.9.34}"
 echoerr() {
   >&2 echo -e "\033[0;31m$1\033[0m"
 }
