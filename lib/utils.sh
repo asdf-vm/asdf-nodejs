@@ -75,7 +75,7 @@ print_index_tab(){
   if [ -z "$index" ]; then
     cat "$index_file"
   else
-    cat "$temp_headers_file" | awk '/^etag: /{print(substr($0, 7))}' > "$etag_file"
+    cat "$temp_headers_file" | awk 'tolower($1) == "etag:" { print $2 }' > "$etag_file"
     echo "$index" | filter_version_candidates | tee "$index_file"
   fi
 
