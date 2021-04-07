@@ -21,12 +21,6 @@ die() {
   exit 1
 }
 
-# TODO: implement a cache for the tab. The api supports If-None-Match and
-# If-Modified-Since HTTP headers
-print_index_tab() {
-  curl --silent "${NODEJS_ORG_MIRROR}index.tab"
-}
-
 # Tab file needs to be piped as stdin
 # Print all alias and correspondent versions in the format "$alias\t$version"
 # Also prints versions as a alias of itself. Eg: "v10.0.0\tv10.0.0"
@@ -63,3 +57,27 @@ filter_version_candidates() {
   done
 }
 
+versions_cache_dir="${ASDF_DATA_DIR:-${ASDF_HOME:-$HOME/.asdf}}/tmp/$(plugin_name)/cache"
+mkdir -p "$versions_cache_dir"
+
+etag_file="$versions_cache_dir/etag"
+index_file="$versions_cache_dir/index"
+touch "$etag_file" "$index_file"
+
+print_index_tab(){
+  local temp_headers_file="$(mktemp)"
+
+  if [ -f "$etag_file" ]; then
+    etag_flag='--header If-None-Match:'"$(cat "$etag_file")"
+  fi
+
+  index="$(curl --fail --silent --dump-header "$temp_headers_file" $etag_flag  "${NODEJS_ORG_MIRROR}index.tab")"
+  if [ -z "$index" ]; then
+    cat "$index_file"
+  else
+    cat "$temp_headers_file" | awk 'tolower($1) == "etag:" { print $2 }' > "$etag_file"
+    echo "$index" | filter_version_candidates | tee "$index_file"
+  fi
+
+  rm "$temp_headers_file"
+}
