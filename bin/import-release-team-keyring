@@ -39,7 +39,8 @@ if [ -z "${gnugp_verify_command_name}" ]; then
 fi
 
 for key in $KEYS; do
-  for server in $SERVERS; do
-    $gnugp_verify_command_name --no-default-keyring --keyring ${ASDF_NODEJS_KEYRING} --no-tty --keyserver "hkp://$server" $OPTIONS --display-charset utf-8 --recv-keys "$key" && break
-  done
+    for server in $SERVERS; do
+      $gnugp_verify_command_name --with-colons --no-default-keyring --keyring ${ASDF_NODEJS_KEYRING} -k $key > /dev/null 2>&1 || \
+      $gnugp_verify_command_name --no-default-keyring --keyring ${ASDF_NODEJS_KEYRING} --no-tty --keyserver "hkp://$server" $OPTIONS --display-charset utf-8 --recv-keys "$key" && break
+    done
 done

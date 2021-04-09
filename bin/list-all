@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# simulate tac on macOS
+if ! command -v tac &>/dev/null; then
+  tac() {
+    cat -n "$@" | sort -nrk1 | cut -f2-
+  }
+fi
+
 set -o nounset -o pipefail -o errexit
 
 # shellcheck source=../lib/utils.sh
@@ -8,5 +15,5 @@ source "$(dirname "$0")/../lib/utils.sh"
 # Print
 echo $(
   # Only print the first column of candidates
-  print_index_tab | filter_version_candidates | awk -F'\t' '{ print $1 }' | tac
+  print_index_tab | cut -f1 | tac
 )

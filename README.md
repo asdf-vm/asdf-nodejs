@@ -9,8 +9,7 @@ Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 ## Requirements
 
 
-### MacOS
-* [GNU Core Utils](http://www.gnu.org/software/coreutils/coreutils.html) - `brew install coreutils`
+### macOS
 * [GnuPG](http://www.gnupg.org) - `brew install gpg`
 * awk - any posix compliant implementation (tested on gawk `brew install gawk`)
 
@@ -30,13 +29,7 @@ Install the plugin:
 asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 ```
 
-Import the Node.js release team's OpenPGP keys to main keyring:
-
-```bash
-bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-release-team-keyring'
-```
-
-If you are trying to install a previous release and facing any issue about verification, import the Node.js previous release team's OpenPGP keys to main keyring:
+The plugin now automatically imports the NodeJS release team's OpenPGP keys. If you are trying to install a previous release and facing any issue about verification, import the Node.js previous release team's OpenPGP keys to main keyring:
 
 ```bash
 bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-previous-release-team-keyring'
