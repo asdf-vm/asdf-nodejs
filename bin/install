@@ -246,7 +246,7 @@ download_and_verify_checksums() {
       if ! $gnugp_verify_command_name --no-default-keyring --keyring "${ASDF_NODEJS_KEYRING}" --display-charset utf-8 --verify "$signed_checksum_file" 2>/dev/null; then
         # Try default keyring
         if ! $gnugp_verify_command_name --display-charset utf-8 --verify "$signed_checksum_file" 2>/dev/null; then
-          echo "Authenticity of checksum file can not be assured! Please be sure to check the README of asdf-nodejs in case you did not yet import the needed PGP keys. If you already did that then that is the point to become SUSPICIOUS! There must be a reason why this is failing. If you are installing an older NodeJS version you might need to import OpenPGP keys of previous release managers. Exiting." >&2
+          echo "Authenticity of checksum file can not be assured! Please be sure to check the README of asdf-nodejs in case you did not yet import the needed PGP keys. Also, make sure the plugin is up-to-date by running \`asdf plugin update $(plugin_name)\`. If you already did that then that is the point to become SUSPICIOUS! There must be a reason why this is failing. If you are installing an older NodeJS version you might need to import OpenPGP keys of previous release managers. Exiting." >&2
           exit 1
         fi
       fi
