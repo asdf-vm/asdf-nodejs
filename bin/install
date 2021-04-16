@@ -231,7 +231,7 @@ download_and_verify_checksums() {
     local gnugp_verify_command_name
     gnugp_verify_command_name="$(command -v gpg gpg2 | head -n 1 || :)"
     if [ -z "${gnugp_verify_command_name}" ]; then
-      echo "You should install GnuPG to verify the authenticity of the downloaded archives: https://www.gnupg.org/" >&2
+      echo "You must install GnuPG to verify the authenticity of the downloaded archives and continue with install: https://www.gnupg.org/" >&2
       exit 1
     fi
 
