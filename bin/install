@@ -29,6 +29,7 @@ install_canon_version() {
   local version="$2"
   local install_path="$3"
   local tmp_download_dir="$4"
+  local make_flags="-j${ASDF_CONCURRENCY-1}"
 
   ## Do this first as it is fast but could fail.
   download_and_verify_checksums "$install_type" "$version" "$tmp_download_dir"
@@ -52,8 +53,8 @@ install_canon_version() {
 
       # shellcheck disable=SC2086
       ./configure $configure_options || exit 1
-      make
-      make install
+      make $make_flags || exit 1
+      make $make_flags install || exit 1
 
       if [ $? -ne 0 ]; then
         rm -rf "$install_path"
