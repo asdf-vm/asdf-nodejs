@@ -26,8 +26,19 @@ Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 After installing [asdf](https://github.com/asdf-vm/asdf), install the plugin by running:
 
 ```bash
-asdf plugin-add nodejs 
+asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 ```
+
+We also support auto-reshimming of global npm package installations via a custom npm wrapper
+For setting auto-reshiming, link the [wrapper file](./wrappers/bin/npm) somewhere into the path before the asdf shims directory, or simply add the following lines to your .bashrc/.zshrc configuration *after activating asdf*:
+
+```
+asdf list nodejs > /dev/null 2>&1 && \
+    PATH="$(asdf nodejs wrappers-path):$PATH"
+```
+
+> *Explanation:*
+> Reshimming is the process of telling asdf to search for globally installed binaries, if we run `npm install -g typescript` we need to tell asdf to search for global installed binaries (`tsc` the Typescript compiler will be find and shimmed by asdf in this example), so that he can link them correctly with nodejs version changes. This step is necessary because of the high dynamicity of nodejs version switching
 
 ## Use
 
@@ -67,10 +78,6 @@ The plugin automatically imports the NodeJS release team's OpenPGP keys. If you 
 ```bash
 bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-previous-release-team-keyring'
 ```
-
-## Temporarily disable reshimming
-
-To avoid a slowdown when installing large packages (see https://github.com/asdf-vm/asdf-nodejs/issues/46), you can `ASDF_SKIP_RESHIM=1 npm i -g <package>` and reshim after installing all packages using `asdf reshim nodejs`.
 
 ## Using a dedicated OpenPGP keyring
 
