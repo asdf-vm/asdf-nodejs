@@ -8,6 +8,8 @@ source "$(dirname "$0")/../lib/utils.sh"
 NODEJS_CHECK_SIGNATURES="${NODEJS_CHECK_SIGNATURES:-strict}"
 
 
+wrappers_check_and_notice
+
 install_nodejs() {
   local install_type="$1"
   local version_query="$2"
@@ -63,10 +65,6 @@ install_canon_version() {
     else
       tar zxf "$archive_path" -C "$install_path" --strip-components=1 || exit 1
     fi
-
-    mkdir -p "$install_path/.npm/lib/node_modules/.hooks"
-    cp "$(dirname "$(dirname "$0")")"/npm-hooks/* "$install_path/.npm/lib/node_modules/.hooks/"
-    chmod +x "$install_path"/.npm/lib/node_modules/.hooks/*
   )
 }
 
