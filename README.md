@@ -37,8 +37,11 @@ asdf list nodejs > /dev/null 2>&1 && \
     PATH="$(asdf nodejs wrappers-path):$PATH"
 ```
 
-> *Explanation:*
-> Reshimming is the process of telling asdf to search for globally installed binaries, if we run `npm install -g typescript` we need to tell asdf to search for global installed binaries (`tsc` the Typescript compiler will be find and shimmed by asdf in this example), so that he can link them correctly with nodejs version changes. This step is necessary because of the high dynamicity of nodejs version switching
+> **Explanation:**
+> 
+> Reshimming is the process of telling asdf to search for globally installed binaries, if we run `npm install -g typescript` we need to tell asdf to search for global installed binaries (), so that he can link them correctly with nodejs version changes,`tsc` the Typescript compiler will be found and shimmed by asdf in this example.
+>
+> This step is necessary because of the high dynamicity of nodejs version switching
 
 ## Use
 
