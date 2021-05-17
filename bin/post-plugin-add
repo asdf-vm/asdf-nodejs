@@ -9,4 +9,5 @@ global installs. Check more about it in https://github.com/asdf-vm/asdf-nodejs#i
 or just add the following lines into your .bashrc/.zshrc file
 
     asdf list $(plugin_name) > /dev/null 2>&1 && \\
-        PATH=\"\$(asdf $(plugin_name) wrappers-path):\$PATH\"\n"
+        PATH=\"\$(asdf $(plugin_name) wrappers-path):\$PATH\"
+\n"
