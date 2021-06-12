@@ -26,7 +26,7 @@ Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 After installing [asdf](https://github.com/asdf-vm/asdf), install the plugin by running:
 
 ```bash
-asdf plugin-add nodejs 
+asdf plugin add nodejs 
 ```
 
 ## Use
