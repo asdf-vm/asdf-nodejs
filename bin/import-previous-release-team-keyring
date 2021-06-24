@@ -13,10 +13,7 @@ KEYS="9554F04D7259F04124DE6B476D5A82AC7E37093B \
       7937DFD2AB06298B2293C3187D33FF9D0246406D \
       1C050899334244A8AF75E53792EF661D867B9DFA"
 
-SERVERS="ha.pool.sks-keyservers.net
-         p80.pool.sks-keyservers.net:80 \
-         ipv4.pool.sks-keyservers.net \
-         keyserver.ubuntu.com
+SERVERS="keyserver.ubuntu.com
          keyserver.ubuntu.com:80 \
          pgp.mit.edu
          pgp.mit.edu:80"
