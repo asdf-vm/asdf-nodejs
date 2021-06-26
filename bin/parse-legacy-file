@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
-echo $(
-  sed '1 s/^v//' "$1"
-)
+
+version=$(sed '1 s/^v//' "$1")
+
+if [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo $version
+elif [[ "$version" = "node" ]]; then
+  echo $(
+    asdf list nodejs | tail -n1
+  )
+else
+  final_version=$(
+    asdf list nodejs | grep "^\s*$version" | tail -n1
+  )
+  [[ ! -z "$final_version" ]] && echo $final_version || echo $version
+fi
