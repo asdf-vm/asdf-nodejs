@@ -4,6 +4,10 @@ set -o nounset -o pipefail -o errexit
 
 source "$(dirname "$0")/../lib/utils.sh"
 
+if [ -n "${ASDF_NODEJS_KEYRING_DIR:-}" ]; then
+  export GNUPGHOME="$ASDF_NODEJS_KEYRING_DIR"
+fi
+
 ## Keys from https://github.com/nodejs/node/#release-keys
 KEYS="4ED778F539E3634C779C87C6D7062848A1AB005C \
       94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
