@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+asdf_nodejs_installs_path=$(dirname $(dirname $(dirname $NODE)))
+asdf_nodejs_plugin_path=${asdf_nodejs_installs_path/installs/plugins}
+bash ${asdf_nodejs_plugin_path}/bin/postinstall
