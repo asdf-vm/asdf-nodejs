@@ -5,6 +5,6 @@ source "$(dirname "$0")/../lib/utils.sh"
 
 if [ "$ASDF_SKIP_RESHIM" == "1" ]; then
   echo "Run 'asdf reshim $(plugin_name) ${ASDF_INSTALL_VERSION:-$npm_config_node_version}' after installing the packages to reshim"
-else
+elif [[ ! -z `/usr/bin/env | grep "npm_package_bin"` ]]; then
   asdf reshim "$(plugin_name)" "${ASDF_INSTALL_VERSION:-$npm_config_node_version}"
 fi
