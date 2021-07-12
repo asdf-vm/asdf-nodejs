@@ -1,0 +1,37 @@
+name: Main workflow
+
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: 0 0 * * 5
+
+jobs:
+  plugin_test:
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install system packages on Ubuntu
+        if: ${{ runner.os == 'Linux' }}
+        run: sudo apt-get install curl dirmngr gawk gpg
+
+      - name: Install system packages on macOS
+        if: ${{ runner.os == 'macOS' }}
+        run: brew install coreutils gawk gpg
+
+      - name: Import the Node.js release team's OpenPGP keys
+        run: bash ./bin/import-release-team-keyring
+
+      - name: Test plugin
+        uses: asdf-vm/actions/plugin-test@v1
+        with:
+          command: node --version
