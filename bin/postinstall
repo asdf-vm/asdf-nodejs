@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+
+# This script only exists to clean the old mechanism of auto-reshimming by npm .hooks from older installations
+# FIXME: Remove this file given enough time to migrate most users
+
+set -eu
+set -o pipefail
+
+plugin_name="$(basename "$(dirname "$(dirname "${BASH_SOURCE[0]}")")")"
+
+printf "
+This asdf installation of nodejs is still using a older mechanism of auto-reshimming
+We are now removing the older mechanism of all $plugin_name installations...
+" >&2
+
+for version in $(asdf list "$plugin_name"); do
+	hook="$(asdf where "$plugin_name" "$version")/.npm/lib/node_modules/.hooks/postinstall"
+
+	if [ -x "$hook" ]; then
+		rm "$hook"
+		rmdir "$(dirname "$hook")" || : &> /dev/null
+	fi
+done
