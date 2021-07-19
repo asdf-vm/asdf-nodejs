@@ -4,7 +4,7 @@ set -eu
 set -o pipefail
 
 # This script wraps around npm, so to run `asdf reshim` after a global install/uninstall
-# Any other cases are passed-throught to npm
+# Any other cases are passed-through to npm
 
 this_dir="$(dirname "${BASH_SOURCE[0]}")"
 plugin_name="$(basename "$(dirname "$this_dir")")"
@@ -13,7 +13,7 @@ quote_path() {
   sed 's/\\/\\\\/g; s/\//\\\//g' <<< "$1"
 }
 
-# Remove current script from path and search the next npm executable
+# Remove current script from PATH and search the next by priority npm executable
 # It works because asdf-core adds every binary path candidate to PATH before calling this script
 filtered_path="$(sed "s/$(quote_path "$this_dir")//g; s/::/:/g" <<< "$PATH")"
 npm="$(PATH="$filtered_path" command -v npm)"
