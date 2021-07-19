@@ -1,0 +1,68 @@
+#! /usr/bin/env bash
+
+set -eu
+set -o pipefail
+
+# This script wraps around npm, so to run `asdf reshim` after a global install/uninstall
+# Any other cases are passed-through to npm
+
+this_dir="$(dirname "${BASH_SOURCE[0]}")"
+plugin_name="$(basename "$(dirname "$this_dir")")"
+
+quote_path() {
+  sed 's/\\/\\\\/g; s/\//\\\//g' <<< "$1"
+}
+
+# Remove current script from PATH and search the next by priority npm executable
+# It works because asdf-core adds every binary path candidate to PATH before calling this script
+filtered_path="$(sed "s/$(quote_path "$this_dir")//g; s/::/:/g" <<< "$PATH")"
+npm="$(PATH="$filtered_path" command -v npm)"
+
+should_reshim() {
+  if [ "${ASDF_SKIP_RESHIM:-}" ]; then
+    return 1
+  fi
+
+  local is_global= cmd= cmd_needs_reshim=
+
+  for arg; do
+    case "$arg" in
+      -g|--global)
+        is_global=true
+        ;;
+
+      -*) ;; # Skip other options
+
+      *)
+        cmd="${cmd:-$arg}"
+        ;;
+    esac
+  done
+
+  case "$cmd" in
+    # npm install aliases
+    install|i|in|ins|inst|insta|instal|isnt|isnta|isntal|add)
+      cmd_needs_reshim=true
+      ;;
+
+    # npm uninstall aliases
+    uninstall|un|unlink|remove|rm|r)
+      cmd_needs_reshim=true
+      ;;
+  esac
+
+  if [ "$is_global" ] && [ "$cmd_needs_reshim" ]; then
+    return 0
+  fi
+
+  return 1
+}
+
+
+if should_reshim "$@"; then
+  "$npm" "$@"
+  printf "Reshimming asdf %s...\n" "$plugin_name" >&2
+  asdf reshim "$plugin_name"
+else
+  exec "$npm" "$@"
+fi

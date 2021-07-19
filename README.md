@@ -26,7 +26,7 @@ Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 After installing [asdf](https://github.com/asdf-vm/asdf), install the plugin by running:
 
 ```bash
-asdf plugin add nodejs 
+asdf plugin add https://github.com/asdf-vm/asdf-nodejs.git 
 ```
 
 ## Use
@@ -67,10 +67,6 @@ The plugin automatically imports the NodeJS release team's OpenPGP keys. If you 
 ```bash
 bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-previous-release-team-keyring'
 ```
-
-## Temporarily disable reshimming
-
-To avoid a slowdown when installing large packages (see https://github.com/asdf-vm/asdf-nodejs/issues/46), you can `ASDF_SKIP_RESHIM=1 npm i -g <package>` and reshim after installing all packages using `asdf reshim nodejs`.
 
 ## Using a dedicated OpenPGP keyring
 
