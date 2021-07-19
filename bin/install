@@ -8,8 +8,6 @@ source "$(dirname "$0")/../lib/utils.sh"
 NODEJS_CHECK_SIGNATURES="${NODEJS_CHECK_SIGNATURES:-strict}"
 
 
-wrappers_check_and_notice
-
 install_nodejs() {
   local install_type="$1"
   local version_query="$2"
