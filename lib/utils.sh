@@ -10,7 +10,7 @@ fi
 
 ASDF_NODEJS_KEYRING=asdf-nodejs.gpg
 
-ASDF_NODEJS_PLUGIN_NAME="$(basename "$(dirname "$(dirname "${BASH_SOURCE[0]}")")")"
+ASDF_NODEJS_PLUGIN_NAME="$(basename "$(dirname "$(dirname "$0")")")"
 # TODO: Replace with an asdf variable once asdf starts providing the plugin name
 # as a variable
 plugin_name() {
@@ -85,4 +85,3 @@ print_index_tab(){
 
   rm "$temp_headers_file"
 }
-
