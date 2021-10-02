@@ -3,20 +3,21 @@
 set -eu
 set -o pipefail
 
-# This script wraps around npm, so to run `asdf reshim` after a global install/uninstall
+# This script wraps npm so to run `asdf reshim` after global installs and uninstalls
 # Any other cases are passed-through to npm
 
-this_dir="$(dirname "${BASH_SOURCE[0]}")"
-plugin_name="$(basename "$(dirname "$this_dir")")"
+this_dir=$(dirname "${BASH_SOURCE[0]}")
+this_dir=$(cd "$this_dir" && pwd -P) # Normalizes the directory
+
+asdf_data_dir=$(cd "${ASDF_DATA_DIR:-${ASDF_HOME:-$HOME/.asdf}}" && pwd -P)
+asdf_shims_dir="$asdf_data_dir/shims"
+
+plugin_name=$(basename "$(dirname "$this_dir")")
+plugin_dir="$asdf_data_dir/plugins/$plugin_name"
 
 quote_path() {
   sed 's/\\/\\\\/g; s/\//\\\//g' <<< "$1"
 }
-
-# Remove current script from PATH and search the next by priority npm executable
-# It works because asdf-core adds every binary path candidate to PATH before calling this script
-filtered_path="$(sed "s/$(quote_path "$this_dir")//g; s/::/:/g" <<< "$PATH")"
-npm="$(PATH="$filtered_path" command -v npm)"
 
 should_reshim() {
   if [ "${ASDF_SKIP_RESHIM:-}" ]; then
@@ -51,18 +52,85 @@ should_reshim() {
       ;;
   esac
 
-  if [ "$is_global" ] && [ "$cmd_needs_reshim" ]; then
-    return 0
+  # Implicit return
+  [ "$is_global" ] && [ "$cmd_needs_reshim" ]
+}
+
+resolve_canon_npm() {
+  local npm_location=
+
+  # Try searching in current path (asdf core from 0.7 onwards adds all binaries candidates directories to PATH)
+  # if that doesn't works (when calling the shim directly for example) it tries manually searching the binary in
+  # the installed version provided by "asdf where"
+  npm_location="${ASDF_NODEJS_CANON_NPM_PATH:-$(search_npm_on_current_path || manually_search_npm_bin)}"
+
+  if ! [ "$npm_location" ]; then
+    printf "asdf-nodejs couldn't find a executable npm command\n"
+    print "This is probably a problem with the plugin, please report this issue at https://github.com/asdf-vm/asdf-nodejs/issues\n"
+    exit 1
   fi
+
+  printf "%s\n" "$npm_location"
+}
+
+remove_current_dir_from_path() {
+  local filtered_path= dir= normalized_dir=
+
+  while read -rd : dir; do
+    if [ -d "$dir" ]; then
+      normalized_dir=$(cd "$dir" && pwd -P)
+
+      if [ "$normalized_dir" = "$this_dir" ] || [ "$normalized_dir" = "$asdf_shims_dir" ]; then
+        continue
+      fi
+    fi
+
+    filtered_path+="$dir:"
+  done <<< "$PATH:"
+
+  printf "%s\n" "${filtered_path%:}"
+}
+
+search_npm_on_current_path() {
+  local filtered_path=
+
+  # Tries to prevent recursion by removing the current script and asdf-shim from PATH
+  filtered_path=$(remove_current_dir_from_path)
+
+  PATH="$filtered_path" command -v npm
+}
+
+manually_search_npm_bin() {
+  local installed_dir= bin_directories=
+
+  installed_dir=$(asdf where nodejs)
+  bin_directories=(bin)
+
+  if [ -x "$plugin_dir/bin/list-bin-paths" ]; then
+    bin_directories=($("$plugin_dir/bin/list-bin-paths"))
+  fi
+
+  for bin_dir in "${bin_directories[@]}"; do
+    if [ -x "$installed_dir/$bin_dir/npm" ]; then
+      printf "%s\n" "$installed_dir/$bin_dir/npm" 
+      return 0
+    fi
+  done
 
   return 1
 }
 
+wrap_npm_if_reshim_is_needed() {
+  local npm=
+  npm=$(resolve_canon_npm)
 
-if should_reshim "$@"; then
-  "$npm" "$@"
-  printf "Reshimming asdf %s...\n" "$plugin_name" >&2
-  asdf reshim "$plugin_name"
-else
-  exec "$npm" "$@"
-fi
+  if should_reshim "$@"; then
+    "$npm" "$@"
+    printf "Reshimming asdf %s...\n" "$plugin_name" >&2
+    asdf reshim "$plugin_name"
+  else
+    exec "$npm" "$@"
+  fi
+}
+
+wrap_npm_if_reshim_is_needed "$@"
