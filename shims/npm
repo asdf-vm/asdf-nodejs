@@ -15,10 +15,6 @@ asdf_shims_dir="$asdf_data_dir/shims"
 plugin_name=$(basename "$(dirname "$this_dir")")
 plugin_dir="$asdf_data_dir/plugins/$plugin_name"
 
-quote_path() {
-  sed 's/\\/\\\\/g; s/\//\\\//g' <<< "$1"
-}
-
 should_reshim() {
   if [ "${ASDF_SKIP_RESHIM:-}" ]; then
     return 1
