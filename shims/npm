@@ -65,8 +65,8 @@ resolve_canon_npm() {
   npm_location="${ASDF_NODEJS_CANON_NPM_PATH:-$(search_npm_on_current_path || manually_search_npm_bin)}"
 
   if ! [ "$npm_location" ]; then
-    printf "asdf-nodejs couldn't find a executable npm command\n"
-    print "This is probably a problem with the plugin, please report this issue at https://github.com/asdf-vm/asdf-nodejs/issues\n"
+    printf "asdf-nodejs couldn't find a suitable npm executable\n"
+    printf "This is probably a problem with the plugin, please report this issue at https://github.com/asdf-vm/asdf-nodejs/issues\n"
     exit 1
   fi
 
