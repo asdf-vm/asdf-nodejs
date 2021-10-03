@@ -7,12 +7,13 @@ set -o pipefail
 # Any other cases are passed-through to npm
 
 this_dir=$(dirname "${BASH_SOURCE[0]}")
+plugin_name=$(basename "$(dirname "$this_dir")")
+
 this_dir=$(cd "$this_dir" && pwd -P) # Normalizes the directory
 
 asdf_data_dir=$(cd "${ASDF_DATA_DIR:-${ASDF_HOME:-$HOME/.asdf}}" && pwd -P)
 asdf_shims_dir="$asdf_data_dir/shims"
 
-plugin_name=$(basename "$(dirname "$this_dir")")
 plugin_dir="$asdf_data_dir/plugins/$plugin_name"
 
 should_reshim() {
