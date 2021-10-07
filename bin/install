@@ -94,8 +94,7 @@ resolve_version_query() {
   local canon_version="$(
     # Find the first candidate which the alias match, then print it version
     print_index_tab \
-      | awk -F'\t' -v "alias=$version_query" '$1 == alias { print $2 }' \
-      | head -n 1
+      | awk -F'\t' -v "alias=$version_query" '$1 == alias { print $2; exit }'
   )"
 
   if [ -z "$canon_version" ]; then
