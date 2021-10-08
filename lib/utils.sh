@@ -80,7 +80,8 @@ print_index_tab(){
     cat "$index_file"
   else
     cat "$temp_headers_file" | awk 'tolower($1) == "etag:" { print $2 }' > "$etag_file"
-    echo "$index" | filter_version_candidates | tee "$index_file"
+    echo "$index" | filter_version_candidates > "$index_file"
+    cat "$index_file"
   fi
 
   rm "$temp_headers_file"
