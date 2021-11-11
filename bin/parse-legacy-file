@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 echo $(
-  sed '1 s/^v//' "$1"
+  sed '1 s/^v//; s/^lts\//lts-/; s/^lts-\*$/lts/' "$1"
 )
