@@ -10,15 +10,17 @@ fi
 
 ASDF_NODEJS_KEYRING=asdf-nodejs.gpg
 
-ASDF_NODEJS_PLUGIN_NAME="$(basename "$(dirname "$(dirname "$0")")")"
+export ASDF_NODEJS_PLUGIN_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+
 # TODO: Replace with an asdf variable once asdf starts providing the plugin name
 # as a variable
+export ASDF_NODEJS_PLUGIN_NAME=$(basename "$ASDF_NODEJS_PLUGIN_DIR")
 plugin_name() {
   printf "%s\n" "$ASDF_NODEJS_PLUGIN_NAME"
 }
 
-ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
-export ASDF_NODEJS_PLUGIN_NAME ASDF_DIR
+export ASDF_NODEJS_CACHE_DIR="${ASDF_DATA_DIR:-${ASDF_DIR:-$HOME/.asdf}}/tmp/$ASDF_NODEJS_PLUGIN_NAME/cache"
+export ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
 
 die() {
   >&2 echo "$@"
@@ -61,7 +63,7 @@ filter_version_candidates() {
   done
 }
 
-versions_cache_dir="${ASDF_DATA_DIR:-${ASDF_HOME:-$HOME/.asdf}}/tmp/$(plugin_name)/cache"
+versions_cache_dir="$ASDF_NODEJS_CACHE_DIR/versions-tab"
 mkdir -p "$versions_cache_dir"
 
 etag_file="$versions_cache_dir/etag"
