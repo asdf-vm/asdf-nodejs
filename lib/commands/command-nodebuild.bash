@@ -13,7 +13,7 @@ if [ "$NODEJS_ORG_MIRROR" ]; then
   export NODE_BUILD_MIRROR_URL="$NODEJS_ORG_MIRROR"
 fi
 
-if [[ $ASDF_NODEJS_CONCURRENCY =~ ^[0-9]+$ ]]; then
+if [[ "${ASDF_NODEJS_CONCURRENCY-}" =~ ^[0-9]+$ ]]; then
   export MAKE_OPTS="${MAKE_OPTS:-} -j$ASDF_NODEJS_CONCURRENCY"
   export NODE_MAKE_OPTS="${NODE_MAKE_OPTS:-} -j$ASDF_NODEJS_CONCURRENCY"
 fi

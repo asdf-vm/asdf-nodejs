@@ -38,7 +38,8 @@ install_canon_version() {
   fi
 
   ensure_nodebuild_updated
-  NODE_BUILD_BUILD_PATH="$ASDF_DOWNLOAD_PATH" \
+
+  NODE_BUILD_BUILD_PATH="$ASDF_DOWNLOAD_PATH" NODE_BUILD_CACHE_PATH="$ASDF_DOWNLOAD_PATH" \
     nodebuild_wrapped -v "${nodebuild_args[@]}" "$version" "$install_path"
 }
 
