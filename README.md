@@ -24,8 +24,6 @@ When compiling a version from source, you are going to need to install [all requ
 
 Aside from the [common configuration with `node-build`](https://github.com/nodenv/node-build#custom-build-configuration), `asdf-nodejs` has a few extra environment variables for configuration.
 
-| Variable | Function |
-| --------| ---|
 - `ASDF_NODEJS_NODEBUILD_HOME`: Home for the node-build installation, defaults to `$ASDF_DIR/plugins/nodejs/.node-build`, you can install it in another place or share it with your system
 - `ASDF_NODEJS_NODEBUILD`: Path to the node-build executable, defaults to `$NODE_BUILD_MIRROR_URL/bin/node-build`
 - `ASDF_NODEJS_CONCURRENCY`: How many jobs should be used in compilation. Defaults to half the computer cores
@@ -43,6 +41,28 @@ asdf uses the `.tool-versions` for auto-switching between software versions. To 
 ```
 legacy_version_file = yes
 ```
+
+### Updating node-build defitions
+
+Every new node version needs to have a definition file in the `node-build` repository. Because of that, `asdf-nodejs` tries to update the local `node-build` repository at every install command to download definitions for newly added versions.
+
+We provide a command for manually updating `node-build` at your own time:
+
+```bash
+asdf nodejs update-nodebuild
+```
+
+### node-build advanced variations
+
+`node-build` has some additional variations aside from the versions listed in `asdf list-all nodejs` (chakracore/graalvm branches and some others). As of now, we weakly support these variations because they are available for install and can be used in a `.tool-versions` file, but we don't list them as installation candidates nor give full support. Some of them will work out of the box, and some others will need a bit of investigation to get them built. We are planning in providing better support for these variations in the future.
+
+To list all the available variations run:
+
+``` bash
+asdf nodejs nodebuild --definitions
+```
+
+*Note that this command only lists the current `node-build` definitions. You might want to [update the local `node-build` repository](#updating-node-build-definitions) before listing them.*
 
 ## Default npm Packages
 
