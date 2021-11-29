@@ -8,8 +8,6 @@ then
   NODEJS_ORG_MIRROR=$NODEJS_ORG_MIRROR/
 fi
 
-ASDF_NODEJS_KEYRING=asdf-nodejs.gpg
-
 export ASDF_NODEJS_PLUGIN_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
 # TODO: Replace with an asdf variable once asdf starts providing the plugin name
@@ -21,6 +19,14 @@ plugin_name() {
 
 export ASDF_NODEJS_CACHE_DIR="${ASDF_DATA_DIR:-${ASDF_DIR:-$HOME/.asdf}}/tmp/$ASDF_NODEJS_PLUGIN_NAME/cache"
 export ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
+
+# Colors
+colored() {
+  local color="$1" text="$2"
+  printf "\033[%sm%s\033[39;49m\n" "$color" "$text"
+}
+
+export RED=31 GREEN=32 YELLOW=33 BLUE=34 MAGENTA=35 CYAN=36
 
 die() {
   >&2 echo "$@"

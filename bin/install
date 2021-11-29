@@ -19,8 +19,18 @@ install_nodejs() {
 }
 
 
-ensure_nodebuild_updated() {
-  "$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-update-nodebuild.bash"
+try_to_update_nodebuild() {
+  local exit_code=0
+
+  "$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-update-nodebuild.bash" 2> /dev/null || exit_code=$?
+
+  if [ "$exit_code" != 0 ]; then
+    printf "
+%s: Updating node-build failed with exit code %s. The installation will
+try to continue with already installed local defintions. To debug what went
+wrong try to manually updating node-build by running: \`asdf %s update nodebuild\`
+\n" "$(colored $YELLOW WARNING)" "$exit_code" "$ASDF_NODEJS_PLUGIN_NAME"
+  fi
 }
 
 
@@ -37,7 +47,7 @@ install_canon_version() {
     nodebuild_args+=(-c)
   fi
 
-  ensure_nodebuild_updated
+  try_to_update_nodebuild
 
   NODE_BUILD_BUILD_PATH="$ASDF_DOWNLOAD_PATH" NODE_BUILD_CACHE_PATH="$ASDF_DOWNLOAD_PATH" \
     nodebuild_wrapped "${nodebuild_args[@]}" "$version" "$install_path"
@@ -84,19 +94,22 @@ resolve_version_query() {
 
 install_default_npm_packages() {
   local default_npm_packages="${ASDF_NPM_DEFAULT_PACKAGES_FILE:=$HOME/.default-npm-packages}"
+  local name
 
   if [ ! -f "$default_npm_packages" ]; then return; fi
 
-  cat "$default_npm_packages" | while read -r name; do
-    echo -ne "\nInstalling \033[33m${name}\033[39m npm package... "
-    source "$(dirname "$0")/exec-env"
-    PATH="$ASDF_INSTALL_PATH/bin:$PATH" npm install -g "$name" > /dev/null 2>&1 && rc=$? || rc=$?
-    if [[ $rc -eq 0 ]]; then
-      echo -e "\033[32mSUCCESS\033[39m"
-    else
-      echo -e "\033[31mFAIL\033[39m"
-    fi
-  done
+  while read -r name; do
+    (
+      printf "Installing $(colord $YELLOW %s) npm package...\n" "$name"
+      source "$(dirname "$0")/exec-env"
+      PATH="$ASDF_INSTALL_PATH/bin:$PATH" npm install -g "$name" > /dev/null 2>&1 && rc=$? || rc=$?
+      if [[ $rc -eq 0 ]]; then
+        printf "$(colored $GREEN SUCCESS)\n"
+      else
+        printf "$(colored $RED FAIL)\n"
+      fi
+    )
+  done < "$default_npm_packages"
 }
 
 install_nodejs "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
