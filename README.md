@@ -42,7 +42,7 @@ asdf uses the `.tool-versions` for auto-switching between software versions. To 
 legacy_version_file = yes
 ```
 
-### Updating node-build defitions
+### Updating node-build definitions
 
 Every new node version needs to have a definition file in the `node-build` repository. Because of that, `asdf-nodejs` tries to update the local `node-build` repository at every install command to download definitions for newly added versions.
 
