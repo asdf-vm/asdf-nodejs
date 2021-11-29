@@ -52,9 +52,19 @@ We provide a command for manually updating `node-build` at your own time:
 asdf nodejs update-nodebuild
 ```
 
+### Running the wrapped node-build command
+
+We provide a command for running the installed `node-build` command:
+
+```bash
+asdf nodejs nodebuild --version
+```
+
 ### node-build advanced variations
 
-`node-build` has some additional variations aside from the versions listed in `asdf list-all nodejs` (chakracore/graalvm branches and some others). As of now, we weakly support these variations because they are available for install and can be used in a `.tool-versions` file, but we don't list them as installation candidates nor give full support. Some of them will work out of the box, and some others will need a bit of investigation to get them built. We are planning in providing better support for these variations in the future.
+`node-build` has some additional variations aside from the versions listed in `asdf list-all nodejs` (chakracore/graalvm branches and some others). As of now, we weakly support these variations. In the sense that they are available for install and can be used in a `.tool-versions` file, but we don't list them as installation candidates nor give them full attention.
+
+Some of them will work out of the box, and some will need a bit of investigation to get them built. We are planning in providing better support for these variations in the future.
 
 To list all the available variations run:
 
