@@ -16,13 +16,13 @@ asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 
 Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to install & manage versions of Node.js at a system and project level. 
 
-Behind the scenes, `asdf-nodejs` utilizes [`node-build`](https://github.com/nodenv/node-build) to install pre-compiled binaries and compile from source if necessary. You can check its [README](https://github.com/nodenv/node-build/blob/master/README.md) for more compile settings and troubleshooting.
+Behind the scenes, `asdf-nodejs` utilizes [`node-build`](https://github.com/nodenv/node-build) to install pre-compiled binaries and compile from source if necessary. You can check its [README](https://github.com/nodenv/node-build/blob/master/README.md) for additional settings and some troubleshooting.
 
 When compiling a version from source, you are going to need to install [all requirements for compiling Node.js](https://github.com/nodejs/node/blob/master/BUILDING.md#building-nodejs-on-supported-platforms) (be advised that different versions might require different configurations). That being said, `node-build` does a great job at handling edge cases and compilations rarely need a deep investigation.
 
 ### Configuration
 
-Aside from the [common configuration with `node-build`](https://github.com/nodenv/node-build#custom-build-configuration), `asdf-nodejs` has a few extra environment variables for configuration.
+`node-build` already has a [handful of settings](https://github.com/nodenv/node-build#custom-build-configuration), in additional to that `asdf-nodejs` has a few extra configuration variables:
 
 - `ASDF_NODEJS_NODEBUILD_HOME`: Home for the node-build installation, defaults to `$ASDF_DIR/plugins/nodejs/.node-build`, you can install it in another place or share it with your system
 - `ASDF_NODEJS_NODEBUILD`: Path to the node-build executable, defaults to `$NODE_BUILD_MIRROR_URL/bin/node-build`
@@ -32,11 +32,11 @@ Aside from the [common configuration with `node-build`](https://github.com/noden
 
 ### Integrity/signature check
 
-In the past `asdf-nodejs` checked for signatures and integrity on our own. `node-build` checks integrity by precomputing checksums ahead of time and versioning them together with the instructions for building them.
+In the past `asdf-nodejs` checked for signatures and integrity by querying live keyservers. `node-build`, on the other hand, checks integrity by precomputing checksums ahead of time and versioning them together with the instructions for building them, making the process a lot more streamlined.
 
 ### `.nvmrc` and `.node-version` support
 
-asdf uses the `.tool-versions` for auto-switching between software versions. To ease migration, you can have it read an existing `.nvmrc` or `.node-version` file to find out what version of Node.js should be used. To do this, add the following to `$HOME/.asdfrc`:
+asdf uses a `.tool-versions` file for auto-switching between software versions. To ease migration, you can have it read an existing `.nvmrc` or `.node-version` file to find out what version of Node.js should be used. To do this, add the following to `$HOME/.asdfrc`:
 
 ```
 legacy_version_file = yes
