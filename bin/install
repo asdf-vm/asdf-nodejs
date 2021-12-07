@@ -26,10 +26,10 @@ try_to_update_nodebuild() {
 
   if [ "$exit_code" != 0 ]; then
     printf "
-%s: Updating node-build failed with exit code %s. The installation will
+$(colored $YELLOW WARNING): Updating node-build failed with exit code %s. The installation will
 try to continue with already installed local defintions. To debug what went
 wrong try to manually updating node-build by running: \`asdf %s update nodebuild\`
-\n" "$(colored $YELLOW WARNING)" "$exit_code" "$ASDF_NODEJS_PLUGIN_NAME"
+\n" "$exit_code" "$ASDF_NODEJS_PLUGIN_NAME"
   fi
 }
 

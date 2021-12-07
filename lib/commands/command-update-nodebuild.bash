@@ -14,7 +14,7 @@ ensure_updated_project() {
     printf "Cloning node-build...\n"
     git clone "$ASDF_NODEJS_NODEBUILD_REPOSITORY" "$ASDF_NODEJS_NODEBUILD_HOME"
   else
-    printf "Trying to update node-build...\n"
+    printf "Trying to update node-build..."
     output=$(git -C "$ASDF_NODEJS_NODEBUILD_HOME" pull origin master 2>&1) || pull_exit_code=$?
 
     if [ "$pull_exit_code" != 0 ]; then
@@ -24,7 +24,7 @@ ensure_updated_project() {
       exit $pull_exit_code
     fi
 
-    printf "node-build updated!\n"
+    printf " ok\n"
   fi
 }
 
