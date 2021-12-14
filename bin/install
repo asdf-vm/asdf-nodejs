@@ -3,7 +3,7 @@
 set -eu -o pipefail
 
 # shellcheck source=../lib/utils.sh
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../lib/utils.sh"
+source "$(dirname "$0")/../lib/utils.sh"
 
 install_nodejs() {
   local install_type="$1" version_query="$2" install_path="$3"
@@ -100,7 +100,7 @@ install_default_npm_packages() {
 
   while read -r name; do
     (
-      printf "Installing $(colord $YELLOW %s) npm package...\n" "$name"
+      printf "Installing $(colored $YELLOW %s) npm package...\n" "$name"
       source "$(dirname "$0")/exec-env"
       PATH="$ASDF_INSTALL_PATH/bin:$PATH" npm install -g "$name" > /dev/null 2>&1 && rc=$? || rc=$?
       if [[ $rc -eq 0 ]]; then
