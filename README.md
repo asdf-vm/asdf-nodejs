@@ -9,12 +9,12 @@ Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 After installing [asdf](https://github.com/asdf-vm/asdf), install the plugin by running:
 
 ```bash
-asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git 
+asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 ```
 
 ## Use
 
-Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to install & manage versions of Node.js at a system and project level. 
+Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to install & manage versions of Node.js at a system and project level.
 
 Behind the scenes, `asdf-nodejs` utilizes [`node-build`](https://github.com/nodenv/node-build) to install pre-compiled binaries and compile from source if necessary. You can check its [README](https://github.com/nodenv/node-build/blob/master/README.md) for additional settings and some troubleshooting.
 
@@ -42,16 +42,6 @@ asdf uses a `.tool-versions` file for auto-switching between software versions. 
 legacy_version_file = yes
 ```
 
-### Updating node-build definitions
-
-Every new node version needs to have a definition file in the `node-build` repository. Because of that, `asdf-nodejs` tries to update the local `node-build` repository at every install command to download definitions for newly added versions.
-
-We provide a command for manually updating `node-build` at your own time:
-
-```bash
-asdf nodejs update-nodebuild
-```
-
 ### Running the wrapped node-build command
 
 We provide a command for running the installed `node-build` command:
@@ -68,11 +58,19 @@ Some of them will work out of the box, and some will need a bit of investigation
 
 To list all the available variations run:
 
-``` bash
+```bash
 asdf nodejs nodebuild --definitions
 ```
 
-*Note that this command only lists the current `node-build` definitions. You might want to [update the local `node-build` repository](#updating-node-build-definitions) before listing them.*
+_Note that this command only lists the current `node-build` definitions. You might want to [update the local `node-build` repository](#updating-node-build-definitions) before listing them._
+
+### Manually updating node-build definitions
+
+Every new node version needs to have a definition file in the `node-build` repository. `asdf-nodejs` already tries to update `node-build` on every new version installation, but if you want to update `node-build` manually for some reason we provide a command just for that:
+
+```bash
+asdf nodejs update-nodebuild
+```
 
 ## Default npm Packages
 
