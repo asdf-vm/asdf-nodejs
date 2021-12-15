@@ -38,4 +38,4 @@ if [ "${ASDF_NODEJS_VERBOSE_INSTALL-}" ]; then
   nodebuild_args+=(-v)
 fi
 
-exec "$nodebuild" "${nodebuild_args[@]}" "$@"
+exec "$nodebuild" "${nodebuild_args[@]-}" "$@"
