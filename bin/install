@@ -41,16 +41,16 @@ nodebuild_wrapped() {
 
 install_canon_version() {
   local install_type="$1" version="$2" install_path="$3"
-  local nodebuild_args=()
+  local args=()
 
   if [ "$install_type" = ref ]; then
-    nodebuild_args+=(-c)
+    args+=(-c)
   fi
 
   try_to_update_nodebuild
 
   NODE_BUILD_BUILD_PATH="$ASDF_DOWNLOAD_PATH" NODE_BUILD_CACHE_PATH="$ASDF_DOWNLOAD_PATH" \
-    nodebuild_wrapped "${nodebuild_args[@]-}" "$version" "$install_path"
+    nodebuild_wrapped ${args+"${args[@]}"} "$version" "$install_path"
 }
 
 

@@ -22,7 +22,7 @@ if [[ "${ASDF_NODEJS_CONCURRENCY-}" =~ ^[0-9]+$ ]]; then
 fi
 
 nodebuild="${ASDF_NODEJS_NODEBUILD:-$ASDF_NODEJS_NODEBUILD_HOME/bin/node-build}" 
-nodebuild_args=()
+args=()
 
 if ! [ -x "$nodebuild" ]; then
   printf "Binary for node-build not found\n"
@@ -35,7 +35,7 @@ if ! [ -x "$nodebuild" ]; then
 fi
 
 if [ "${ASDF_NODEJS_VERBOSE_INSTALL-}" ]; then
-  nodebuild_args+=(-v)
+  args+=(-v)
 fi
 
-exec "$nodebuild" "${nodebuild_args[@]-}" "$@"
+exec "$nodebuild" ${args+"${args[@]}"} "$@"
