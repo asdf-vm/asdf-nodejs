@@ -4,53 +4,77 @@
 
 Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 
-*The plugin properly validates OpenPGP signatures to check the authenticity of the package. Requires `gpg` to be available during package installs*
-
-## Requirements
-
-
-### macOS
-* [GnuPG](http://www.gnupg.org) - `brew install gpg`
-* awk - any posix compliant implementation (tested on gawk `brew install gawk`)
-
-### Linux (Debian)
-
-* [dirmngr](https://packages.debian.org/sid/dirmngr) - `apt-get install
-  dirmngr`
-* [GnuPG](http://www.gnupg.org) - `apt-get install gpg`
-* [curl](https://curl.haxx.se) - `apt-get install curl`
-* awk - any posix compliant implementation (tested on gawk `apt-get install gawk`)
-
 ## Install
 
 After installing [asdf](https://github.com/asdf-vm/asdf), install the plugin by running:
 
 ```bash
-asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git 
+asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 ```
 
 ## Use
 
-Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to install & manage versions of Node.js.
+Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to install & manage versions of Node.js at a system and project level.
 
-When installing Node.js using `asdf install`, you can pass custom configure options with the following env vars:
+Behind the scenes, `asdf-nodejs` utilizes [`node-build`](https://github.com/nodenv/node-build) to install pre-compiled binaries and compile from source if necessary. You can check its [README](https://github.com/nodenv/node-build/blob/master/README.md) for additional settings and some troubleshooting.
 
-* `NODEJS_CONFIGURE_OPTIONS` - use only your configure options
-* `NODEJS_EXTRA_CONFIGURE_OPTIONS` - append these configure options along with ones that this plugin already uses
-* `NODEJS_CHECK_SIGNATURES` - `strict` is default. Other values are `no` and `yes`. Checks downloads against OpenPGP signatures from the Node.js release team.
-* `NODEJS_ORG_MIRROR` - official mirror `https://nodejs.org/dist/` is default. If you are in China, you can set it to `https://npm.taobao.org/mirrors/node/`.
+When compiling a version from source, you are going to need to install [all requirements for compiling Node.js](https://github.com/nodejs/node/blob/master/BUILDING.md#building-nodejs-on-supported-platforms) (be advised that different versions might require different configurations). That being said, `node-build` does a great job at handling edge cases and compilations rarely need a deep investigation.
 
-### `.nvmrc` and `.node-version` files
+### Configuration
 
-asdf uses the `.tool-versions` for auto-switching between software versions. To ease migration, you can have it read an existing `.nvmrc` or `.node-version` file to find out what version of Node.js should be used. To do this, add the following to `$HOME/.asdfrc`:
+`node-build` already has a [handful of settings](https://github.com/nodenv/node-build#custom-build-configuration), in additional to that `asdf-nodejs` has a few extra configuration variables:
+
+- `ASDF_NODEJS_NODEBUILD_HOME`: Home for the node-build installation, defaults to `$ASDF_DIR/plugins/nodejs/.node-build`, you can install it in another place or share it with your system
+- `ASDF_NODEJS_NODEBUILD`: Path to the node-build executable, defaults to `$NODE_BUILD_MIRROR_URL/bin/node-build`
+- `ASDF_NODEJS_CONCURRENCY`: How many jobs should be used in compilation. Defaults to half the computer cores
+- `ASDF_NODEJS_VERBOSE_INSTALL`: Enables verbose output for downloading and building. Any value different from empty is treated as enabled.
+- `NODEJS_ORG_MIRROR`: (Legacy) overrides the default mirror used for downloading the distibutions, alternative to the `NODE_BUILD_MIRROR_URL` node-build env var
+
+### Integrity/signature check
+
+In the past `asdf-nodejs` checked for signatures and integrity by querying live keyservers. `node-build`, on the other hand, checks integrity by precomputing checksums ahead of time and versioning them together with the instructions for building them, making the process a lot more streamlined.
+
+### `.nvmrc` and `.node-version` support
+
+asdf uses a `.tool-versions` file for auto-switching between software versions. To ease migration, you can have it read an existing `.nvmrc` or `.node-version` file to find out what version of Node.js should be used. To do this, add the following to `$HOME/.asdfrc`:
 
 ```
 legacy_version_file = yes
 ```
 
+### Running the wrapped node-build command
+
+We provide a command for running the installed `node-build` command:
+
+```bash
+asdf nodejs nodebuild --version
+```
+
+### node-build advanced variations
+
+`node-build` has some additional variations aside from the versions listed in `asdf list-all nodejs` (chakracore/graalvm branches and some others). As of now, we weakly support these variations. In the sense that they are available for install and can be used in a `.tool-versions` file, but we don't list them as installation candidates nor give them full attention.
+
+Some of them will work out of the box, and some will need a bit of investigation to get them built. We are planning in providing better support for these variations in the future.
+
+To list all the available variations run:
+
+```bash
+asdf nodejs nodebuild --definitions
+```
+
+_Note that this command only lists the current `node-build` definitions. You might want to [update the local `node-build` repository](#updating-node-build-definitions) before listing them._
+
+### Manually updating node-build definitions
+
+Every new node version needs to have a definition file in the `node-build` repository. `asdf-nodejs` already tries to update `node-build` on every new version installation, but if you want to update `node-build` manually for some reason we provide a command just for that:
+
+```bash
+asdf nodejs update-nodebuild
+```
+
 ## Default npm Packages
 
-asdf-nodejs can automatically install a set of default set of npm package right after installing a Node.js version. To enable this feature, provide a `$HOME/.default-npm-packages` file that lists one package per line, for example:
+`asdf-nodejs` can automatically install a set of default set of npm package right after installing a Node.js version. To enable this feature, provide a `$HOME/.default-npm-packages` file that lists one package per line, for example:
 
 ```
 lodash
@@ -59,44 +83,3 @@ express
 ```
 
 You can specify a non-default location of this file by setting a `ASDF_NPM_DEFAULT_PACKAGES_FILE` variable.
-
-## Problems with OpenPGP signatures in older versions
-
-The plugin automatically imports the NodeJS release team's OpenPGP keys. If you are trying to install a previous release and facing any issue about verification, import the Node.js previous release team's OpenPGP keys to main keyring:
-
-```bash
-bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-previous-release-team-keyring'
-```
-
-## Using a dedicated OpenPGP keyring
-
-The `bash` script mentioned in [the installation instructions](#install) (`import-release-team-keyring`) imports the OpenPGP public keys in your main OpenPGP keyring. However, you can also use a dedicated keyring in order to mitigate [this issue](https://github.com/nodejs/node/issues/9859).
-
-To use a dedicated keyring, prepare the dedicated keyring and set it as the default keyring in the current shell:
-
-```bash
-export GNUPGHOME="${ASDF_DIR:-$HOME/.asdf}/keyrings/nodejs" && mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
-
-# Imports Node.js release team's OpenPGP keys to the keyring
-bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
-```
-
-Again, if you used `brew` to manage the `asdf` installation use the following bash commands:
-
-```bash
-export GNUPGHOME="bash /usr/local/opt/asdf/keyrings/nodejs" && mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
-
-# Imports Node.js release team's OpenPGP keys to the keyring
-bash /usr/local/opt/asdf/plugins/nodejs/bin/import-release-team-keyring
-```
-
-#### Related notes
-
-* [Verifying Node.js Binaries](https://github.com/nodejs/node#verifying-binaries).
-* Only versions `>=0.10.0` are checked. Before that version, signatures for SHA2-256 hashes might not be provided (and can not be installed with the `strict` setting for that reason).
-
-This behavior can be influenced by the `NODEJS_CHECK_SIGNATURES` env var which supports the following options:
-
-* `strict` - (default): Check signatures/checksums and don’t operate on package versions which did not provide signatures/checksums properly (< 0.10.0).
-* `no` - Do not check signatures/checksums
-* `yes`- Check signatures/checksums if they should be present (enforced for >= 0.10.0)
