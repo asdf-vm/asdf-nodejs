@@ -22,6 +22,7 @@ should_reshim() {
   fi
 
   local is_global= cmd= cmd_needs_reshim=
+  local additional_bare_cmds=()
 
   for arg; do
     case "$arg" in
@@ -32,7 +33,11 @@ should_reshim() {
       -*) ;; # Skip other options
 
       *)
-        cmd="${cmd:-$arg}"
+        if ! [ "$cmd" ]; then
+          cmd="$arg"
+        else
+          additional_bare_cmds+=("$arg")
+        fi
         ;;
     esac
   done
@@ -46,6 +51,20 @@ should_reshim() {
     # npm uninstall aliases
     uninstall|un|unlink|remove|rm|r)
       cmd_needs_reshim=true
+      ;;
+
+    link|ln)
+      # Bare link installs a global package
+      if ! [ "${additional_bare_cmds[0]-}" ]; then
+        is_global=1
+        cmd_needs_reshim=true
+      fi
+
+      # Links to directories also install a global package
+      if [[ "${additional_bare_cmds[0]-}" =~ [./].* && -d "${additional_bare_cmds[0]-}"  ]]; then
+        is_global=1
+        cmd_needs_reshim=true
+      fi
       ;;
   esac
 
