@@ -17,8 +17,11 @@ plugin_name() {
   printf "%s\n" "$ASDF_NODEJS_PLUGIN_NAME"
 }
 
-export ASDF_NODEJS_CACHE_DIR="${ASDF_DATA_DIR:-${ASDF_DIR:-$HOME/.asdf}}/tmp/$ASDF_NODEJS_PLUGIN_NAME/cache"
-export ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
+asdf_data_dir() {
+  printf "%s\n" "${ASDF_DATA_DIR:-$HOME/.asdf}"
+}
+
+export ASDF_NODEJS_CACHE_DIR="$(asdf_data_dir)/tmp/$ASDF_NODEJS_PLUGIN_NAME/cache"
 
 # Colors
 colored() {
