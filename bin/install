@@ -43,13 +43,14 @@ install_canon_version() {
   local install_type="$1" version="$2" install_path="$3"
   local args=()
 
-  if [ "$install_type" = ref ]; then
+  if [ "$install_type" = ref ] || [ "${ASDF_NODEJS_FORCE_COMPILE-}" ]; then
     args+=(-c)
   fi
 
   try_to_update_nodebuild
 
-  NODE_BUILD_BUILD_PATH="$ASDF_DOWNLOAD_PATH" NODE_BUILD_CACHE_PATH="$ASDF_DOWNLOAD_PATH" \
+  NODE_BUILD_BUILD_PATH="${NODE_BUILD_BUILD_PATH:-$ASDF_DOWNLOAD_PATH}" \
+    NODE_BUILD_CACHE_PATH="${NODE_BUILD_CACHE_PATH:-$ASDF_DOWNLOAD_PATH}" \
     nodebuild_wrapped ${args+"${args[@]}"} "$version" "$install_path"
 }
 
