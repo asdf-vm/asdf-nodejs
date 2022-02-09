@@ -5,7 +5,7 @@ set -eu -o pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../utils.sh"
 
 : "${ASDF_NODEJS_NODEBUILD_HOME=$ASDF_NODEJS_PLUGIN_DIR/.node-build}"
-: "${ASDF_NODEJS_CONCURRENCY=$((${ASDF_CONCURRENCY:-1} + 1 / 2))}"
+: "${ASDF_NODEJS_CONCURRENCY=$(((${ASDF_CONCURRENCY:-1} + 1) / 2))}"
 
 # node-build environment variables being overriden by asdf-nodejs
 export NODE_BUILD_CACHE_PATH="${NODE_BUILD_CACHE_PATH:-$ASDF_NODEJS_CACHE_DIR/node-build}"

@@ -24,10 +24,11 @@ When compiling a version from source, you are going to need to install [all requ
 
 `node-build` already has a [handful of settings](https://github.com/nodenv/node-build#custom-build-configuration), in additional to that `asdf-nodejs` has a few extra configuration variables:
 
+- `ASDF_NODEJS_VERBOSE_INSTALL`: Enables verbose output for downloading and building. Any value different from empty is treated as enabled.
+- `ASDF_NODEJS_FORCE_COMPILE`: Forces compilation from source instead of preferring pre-compiled binaries
 - `ASDF_NODEJS_NODEBUILD_HOME`: Home for the node-build installation, defaults to `$ASDF_DIR/plugins/nodejs/.node-build`, you can install it in another place or share it with your system
 - `ASDF_NODEJS_NODEBUILD`: Path to the node-build executable, defaults to `$NODE_BUILD_MIRROR_URL/bin/node-build`
 - `ASDF_NODEJS_CONCURRENCY`: How many jobs should be used in compilation. Defaults to half the computer cores
-- `ASDF_NODEJS_VERBOSE_INSTALL`: Enables verbose output for downloading and building. Any value different from empty is treated as enabled.
 - `NODEJS_ORG_MIRROR`: (Legacy) overrides the default mirror used for downloading the distibutions, alternative to the `NODE_BUILD_MIRROR_URL` node-build env var
 
 ### Integrity/signature check
