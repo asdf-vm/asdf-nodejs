@@ -22,14 +22,11 @@ jobs:
 
       - name: Install system packages on Ubuntu
         if: ${{ runner.os == 'Linux' }}
-        run: sudo apt-get install curl dirmngr gawk gpg
+        run: sudo apt-get install curl
 
       - name: Install system packages on macOS
         if: ${{ runner.os == 'macOS' }}
-        run: brew install coreutils gawk gpg
-
-      - name: Import the Node.js release team's OpenPGP keys
-        run: bash ./bin/import-release-team-keyring
+        run: brew install coreutils
 
       - name: Test plugin
         uses: asdf-vm/actions/plugin-test@v1
