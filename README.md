@@ -1,6 +1,4 @@
-# asdf-nodejs
-
-[![Build Status](https://travis-ci.org/asdf-vm/asdf-nodejs.svg?branch=master)](https://travis-ci.org/asdf-vm/asdf-nodejs)
+# asdf-nodejs [![Build](https://github.com/asdf-vm/asdf-nodejs/actions/workflows/workflow.yml/badge.svg)](https://github.com/asdf-vm/asdf-nodejs/actions/workflows/workflow.yml)
 
 Node.js plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 
