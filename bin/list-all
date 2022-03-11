@@ -12,8 +12,16 @@ set -o nounset -o pipefail -o errexit
 # shellcheck source=../lib/utils.sh
 source "$(dirname "$0")/../lib/utils.sh"
 
+function print_only_fully_numeric_items() {
+  local version_numbers="$1"
+  grep -E '^[0-9.]+$' <<< "$version_numbers"
+}
+
+asdf_nodejs_bin_dir="$(dirname "$0")"
+all_definitions_from_node_build="$("${asdf_nodejs_bin_dir}/../.node-build/bin/node-build" --definitions)"
+
 # Print
 echo $(
-  # Only print the first column of candidates
-  print_index_tab | cut -f1 | tac
+  printf "%s\n" lts-{argon,boron,carbon,dubnium,erbium,fermium,gallium} lts
+  print_only_fully_numeric_items "$all_definitions_from_node_build"
 )
