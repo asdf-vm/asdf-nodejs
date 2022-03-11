@@ -28,7 +28,7 @@ try_to_update_nodebuild() {
     printf "
 $(colored $YELLOW WARNING): Updating node-build failed with exit code %s. The installation will
 try to continue with already installed local defintions. To debug what went
-wrong try to manually updating node-build by running: \`asdf %s update nodebuild\`
+wrong, try to manually update node-build by running: \`asdf %s update nodebuild\`
 \n" "$exit_code" "$ASDF_NODEJS_PLUGIN_NAME"
   fi
 }
@@ -101,7 +101,7 @@ install_default_npm_packages() {
 
   filtered_packages=$(grep -vE "^\s*#" < "$default_npm_packages_file")
 
-  if [ "${filtered_packages-}" ]; then 
+  if [ "${filtered_packages-}" ]; then
     printf "$(colored $CYAN "Installing the following default packages globally: ")"
     xargs printf "%s, " <<< "$filtered_packages"
     printf "\x8\x8 \n" # Cleanup last comma

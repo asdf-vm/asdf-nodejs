@@ -40,6 +40,7 @@ die() {
 # Print all alias and correspondent versions in the format "$alias\t$version"
 # Also prints versions as a alias of itself. Eg: "v10.0.0\tv10.0.0"
 filter_version_candidates() {
+  local version_definitions_available_in_local_node_build="$1"
   local curr_line="" aliases=""
 
   # Skip headers
@@ -51,24 +52,34 @@ filter_version_candidates() {
 
     # Version without `v` prefix
     local version="${fields[0]#v}"
-    # Lowercase lts codename, `-` if not a lts version
-    local lts_codename=$(echo "${fields[9]}" | tr '[:upper:]' '[:lower:]')
 
-    if [ "$lts_codename" != - ]; then
-      # No lts read yet, so this must be the more recent
-      if ! grep -q "^lts:" <<< "$aliases"; then
-        printf "lts\t%s\n" "$version"
-        aliases="$aliases"$'\n'"lts:$version"
+    # if we couldn't find version_definitions_available_in_local_node_build, then just don't filter using that.
+    # filtering by version_definitions_available_in_local_node_build prevents situations like the following, where:
+    #   asdf list-all nodejs # returns 17.7.1
+    # but
+    #   asdf install nodejs 17.7.1
+    # doesn't work because the local version of node-build doesn't include the
+    # definition for 17.7.1 yet (as was the case on 2022-03011).
+    if [[ -z "$version_definitions_available_in_local_node_build" ]] || grep -Eq "^${version}$" <<< "$version_definitions_available_in_local_node_build"; then
+      # Lowercase lts codename, `-` if not a lts version
+      local lts_codename=$(echo "${fields[9]}" | tr '[:upper:]' '[:lower:]')
+
+      if [ "$lts_codename" != - ]; then
+        # No lts read yet, so this must be the more recent
+        if ! grep -q "^lts:" <<< "$aliases"; then
+          printf "lts\t%s\n" "$version"
+          aliases="$aliases"$'\n'"lts:$version"
+        fi
+
+        # No lts read for this codename yet, so this must be the more recent
+        if ! grep -q "^$lts_codename:" <<< "$aliases"; then
+          printf "lts-$lts_codename\t%s\n" "$version"
+          aliases="$aliases"$'\n'"$lts_codename:$version"
+        fi
       fi
 
-      # No lts read for this codename yet, so this must be the more recent
-      if ! grep -q "^$lts_codename:" <<< "$aliases"; then
-        printf "lts-$lts_codename\t%s\n" "$version"
-        aliases="$aliases"$'\n'"$lts_codename:$version"
-      fi
+      printf "%s\t%s\n" "$version" "$version"
     fi
-
-    printf "%s\t%s\n" "$version" "$version"
   done
 }
 
@@ -86,12 +97,18 @@ print_index_tab(){
     etag_flag='--header If-None-Match:'"$(cat "$etag_file")"
   fi
 
+  local asdf_nodejs_bin_dir
+  asdf_nodejs_bin_dir="$(dirname "$0")"
+  local definitions_available_in_local_node_build=""
+  if [[ -f "${asdf_nodejs_bin_dir}/../.node-build/bin/node-build" ]]; then
+    definitions_available_in_local_node_build="$("${asdf_nodejs_bin_dir}/../.node-build/bin/node-build" --definitions)"
+  fi
   index="$(curl --fail --silent --dump-header "$temp_headers_file" $etag_flag  "${NODEJS_ORG_MIRROR}index.tab")"
   if [ -z "$index" ]; then
     cat "$index_file"
   else
     cat "$temp_headers_file" | awk 'tolower($1) == "etag:" { print $2 }' > "$etag_file"
-    echo "$index" | filter_version_candidates > "$index_file"
+    echo "$index" | filter_version_candidates "$definitions_available_in_local_node_build" > "$index_file"
     cat "$index_file"
   fi
 
