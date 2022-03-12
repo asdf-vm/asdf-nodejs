@@ -97,3 +97,7 @@ print_index_tab(){
 
   rm "$temp_headers_file"
 }
+
+nodebuild_wrapped() {
+  "$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-nodebuild.bash" "$@"
+}

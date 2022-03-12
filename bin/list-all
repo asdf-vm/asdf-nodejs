@@ -17,7 +17,7 @@ function print_only_fully_numeric_items() {
   grep -E '^[0-9.]+$' <<< "$version_numbers"
 }
 
-all_definitions_from_node_build="$("$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-nodebuild.bash"--definitions)"
+all_definitions_from_node_build="$(nodebuild_wrapped --definitions)"
 
 # Print
 echo $(

@@ -34,11 +34,6 @@ wrong, try to manually update node-build by running: \`asdf %s update nodebuild\
 }
 
 
-nodebuild_wrapped() {
-  "$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-nodebuild.bash" "$@"
-}
-
-
 install_canon_version() {
   local install_type="$1" version="$2" install_path="$3"
   local args=()
