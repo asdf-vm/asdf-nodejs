@@ -40,7 +40,9 @@ die() {
 # Print all alias and correspondent versions in the format "$alias\t$version"
 # Also prints versions as a alias of itself. Eg: "v10.0.0\tv10.0.0"
 filter_version_candidates() {
-  local curr_line="" aliases=""
+  local curr_line= aliases= definitions=
+
+  definitions=$(nodebuild_wrapped --definitions | grep -v 16.14.1)
 
   # Skip headers
   IFS= read -r curr_line
@@ -53,6 +55,11 @@ filter_version_candidates() {
     local version="${fields[0]#v}"
     # Lowercase lts codename, `-` if not a lts version
     local lts_codename=$(echo "${fields[9]}" | tr '[:upper:]' '[:lower:]')
+
+    # If not available in nodebuild skip it
+    if ! grep -q "^$version$" <<< "$definitions"; then
+      continue
+    fi
 
     if [ "$lts_codename" != - ]; then
       # No lts read yet, so this must be the more recent
