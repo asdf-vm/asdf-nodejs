@@ -36,11 +36,17 @@ die() {
   exit 1
 }
 
+delete_on_exit() {
+  trap "rm -rf $@" EXIT
+}
+
 # Tab file needs to be piped as stdin
 # Print all alias and correspondent versions in the format "$alias\t$version"
 # Also prints versions as a alias of itself. Eg: "v10.0.0\tv10.0.0"
 filter_version_candidates() {
-  local curr_line="" aliases=""
+  local curr_line= aliases= definitions=
+
+  definitions=$(nodebuild_wrapped --definitions)
 
   # Skip headers
   IFS= read -r curr_line
@@ -53,6 +59,11 @@ filter_version_candidates() {
     local version="${fields[0]#v}"
     # Lowercase lts codename, `-` if not a lts version
     local lts_codename=$(echo "${fields[9]}" | tr '[:upper:]' '[:lower:]')
+
+    # If not available in nodebuild skip it
+    if ! grep -q "^$version$" <<< "$definitions"; then
+      continue
+    fi
 
     if [ "$lts_codename" != - ]; then
       # No lts read yet, so this must be the more recent
@@ -77,25 +88,25 @@ mkdir -p "$versions_cache_dir"
 
 etag_file="$versions_cache_dir/etag"
 index_file="$versions_cache_dir/index"
-touch "$etag_file" "$index_file"
 
 print_index_tab(){
-  local temp_headers_file="$(mktemp)"
+  local temp_headers_file= index= curl_opts=()
 
-  if [ -f "$etag_file" ]; then
-    etag_flag='--header If-None-Match:'"$(cat "$etag_file")"
+  temp_headers_file=$(mktemp)
+  delete_on_exit "$temp_headers_file"
+
+  if [ -r "$etag_file" ]; then
+    curl_opts=(--header "If-None-Match: $(cat "$etag_file")")
   fi
 
-  index="$(curl --fail --silent --dump-header "$temp_headers_file" $etag_flag  "${NODEJS_ORG_MIRROR}index.tab")"
-  if [ -z "$index" ]; then
-    cat "$index_file"
-  else
-    cat "$temp_headers_file" | awk 'tolower($1) == "etag:" { print $2 }' > "$etag_file"
-    echo "$index" | filter_version_candidates > "$index_file"
-    cat "$index_file"
+  index=$(curl --fail --silent --dump-header "$temp_headers_file" ${curl_opts+"${curl_opts[@]}"}  "${NODEJS_ORG_MIRROR}index.tab")
+
+  if [ "$index" ]; then
+    awk 'tolower($1) == "etag:" { print $2 }' < "$temp_headers_file" > "$etag_file"
+    printf "%s\n" "$index" > "$index_file"
   fi
 
-  rm "$temp_headers_file"
+  filter_version_candidates < "$index_file"
 }
 
 nodebuild_wrapped() {
