@@ -106,7 +106,9 @@ print_index_tab(){
     printf "%s\n" "$index" > "$index_file"
   fi
 
-  filter_version_candidates < "$index_file"
+  # The `cat` indirection is for a bash3 printf broken pipe error
+  # https://github.com/asdf-vm/asdf-nodejs/issues/300
+  cat <(filter_version_candidates < "$index_file")
 }
 
 nodebuild_wrapped() {
