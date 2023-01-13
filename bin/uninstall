@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Unoffical Bash "strict mode"
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+
+IFS=$'\t\n' # Stricter IFS settings
+
+
+# shellcheck source=bin/utils.sh
+source "$(dirname "$0")/../lib/utils.sh"
+
+rm -rf "$ASDF_INSTALL_PATH" || true
+
+update_version_symlinks "$(dirname "$ASDF_INSTALL_PATH")"

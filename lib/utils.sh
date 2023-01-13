@@ -111,6 +111,37 @@ print_index_tab(){
   cat <(filter_version_candidates < "$index_file")
 }
 
+# /path/to/installs/16.10.1 => "/path/to/installs/16.10"
+# /path/to/installs/16.10 => "/path/to/installs/16"
+# /path/to/installs/16 => ""
+# /path/to/installs/ => ""
+strip_last_version_part() {
+  echo "$1" | sed -n -e 's#^\(.\+\)\.[[:digit:]]\+$#\1#p'
+}
+
+update_version_symlinks() {
+  cd "$1"
+
+  find * -maxdepth 1 -type l -regex '[0-9.]*' -delete
+
+  for dir in $(find * -maxdepth 0 -type d | egrep '^[0-9\.]+$' | sort --version-sort); do
+    alias_path="$dir"
+
+    for i in $(seq 1 5); do
+      alias_path=$(strip_last_version_part "$alias_path")
+
+      [ -z "$alias_path" ] && break
+
+      # if the alias path already exists but isn't a link, ignore
+      [ -e "$alias_path" -a ! -L "$alias_path" ] && continue
+
+      # Overwrite the symlink
+      rm "$alias_path" 2> /dev/null || true
+      ln -s -f "$dir" "$alias_path"
+    done
+  done
+}
+
 nodebuild_wrapped() {
   "$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-nodebuild.bash" "$@"
 }
