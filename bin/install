@@ -42,8 +42,6 @@ install_canon_version() {
     args+=(-c)
   fi
 
-  try_to_update_nodebuild
-
   NODE_BUILD_CACHE_PATH="${NODE_BUILD_CACHE_PATH:-$ASDF_DOWNLOAD_PATH}" \
     nodebuild_wrapped ${args+"${args[@]}"} "$version" "$install_path"
 }
@@ -110,6 +108,8 @@ install_default_npm_packages() {
     )
   fi
 }
+
+try_to_update_nodebuild
 
 install_nodejs "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
 
