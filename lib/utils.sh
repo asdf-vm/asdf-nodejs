@@ -99,7 +99,7 @@ print_index_tab(){
     curl_opts=(--header "If-None-Match: $(cat "$etag_file")")
   fi
 
-  index=$(curl --fail --silent --dump-header "$temp_headers_file" ${curl_opts+"${curl_opts[@]}"}  "${NODEJS_ORG_MIRROR}index.tab")
+  index=$(curl --fail --silent --location --dump-header "$temp_headers_file" ${curl_opts+"${curl_opts[@]}"}  "${NODEJS_ORG_MIRROR}index.tab")
 
   if [ "$index" ]; then
     awk 'tolower($1) == "etag:" { print $2 }' < "$temp_headers_file" > "$etag_file"
