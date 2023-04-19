@@ -6,84 +6,21 @@ set -eu -o pipefail
 source "$(dirname "$0")/../lib/utils.sh"
 
 install_nodejs() {
-  local install_type="$1" version_query="$2" install_path="$3"
-  local version=
-
-  version="$(resolve_version_query "$version_query")"
-
-  if [ "$version" != "$version_query" ]; then
-    install_aliased_version "$version" "$version_query" "$install_path"
-  else
-    install_canon_version "$install_type" "$version" "$install_path"
-  fi
-}
-
-
-try_to_update_nodebuild() {
-  local exit_code=0
-
-  "$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-update-nodebuild.bash" 2> /dev/null || exit_code=$?
-
-  if [ "$exit_code" != 0 ]; then
-    printf "
-$(colored $YELLOW WARNING): Updating node-build failed with exit code %s. The installation will
-try to continue with already installed local defintions. To debug what went
-wrong, try to manually update node-build by running: \`asdf %s update nodebuild\`
-\n" "$exit_code" "$ASDF_NODEJS_PLUGIN_NAME"
-  fi
-}
-
-
-install_canon_version() {
   local install_type="$1" version="$2" install_path="$3"
   local args=()
+
+  version=$(resolve_version "$version")
 
   if [ "$install_type" = ref ] || [ "${ASDF_NODEJS_FORCE_COMPILE-}" ]; then
     args+=(-c)
   fi
 
-  try_to_update_nodebuild
+  if ! [ "${ASDF_NODEJS_SKIP_NODEBUILD_UPDATE-}" ]; then
+    try_to_update_nodebuild
+  fi
 
   NODE_BUILD_CACHE_PATH="${NODE_BUILD_CACHE_PATH:-$ASDF_DOWNLOAD_PATH}" \
     nodebuild_wrapped ${args+"${args[@]}"} "$version" "$install_path"
-}
-
-
-install_aliased_version() {
-  local version=$1
-  local version_query=$2
-  local install_path=$3
-
-  # install the true version and only symlink it to the alias
-  >&2 echo "Installing alias $version_query as $version"
-  asdf install "$(plugin_name)" "$version" \
-    || die "Could not install version $version"
-
-  if [ -L "$install_path" ]; then
-    rm "$install_path"
-  else
-    rmdir "$install_path"
-  fi
-
-  >&2 echo "Linking \"$version_query\" to \"$version\""
-  ln -s "$(asdf where "$(plugin_name)" "$version")" "$install_path"
-}
-
-
-resolve_version_query() {
-  local version_query="$1"
-
-  local canon_version="$(
-    # Find the first candidate which the alias match, then print it version
-    print_index_tab \
-      | awk -F'\t' -v "alias=$version_query" '$1 == alias { print $2; exit }'
-  )"
-
-  if [ -z "$canon_version" ]; then
-    echo "$version_query"
-  else
-    echo "$canon_version"
-  fi
 }
 
 

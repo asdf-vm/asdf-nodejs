@@ -3,8 +3,7 @@
 # When in China, set $NODEJS_ORG_MIRROR:
 # export NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node/
 NODEJS_ORG_MIRROR="${NODEJS_ORG_MIRROR:-https://nodejs.org/dist/}"
-if [ ${NODEJS_ORG_MIRROR: -1} != / ]
-then
+if [ ${NODEJS_ORG_MIRROR: -1} != / ]; then
   NODEJS_ORG_MIRROR=$NODEJS_ORG_MIRROR/
 fi
 
@@ -31,86 +30,60 @@ colored() {
 
 export RED=31 GREEN=32 YELLOW=33 BLUE=34 MAGENTA=35 CYAN=36
 
-die() {
-  >&2 echo "$@"
-  exit 1
-}
-
-delete_on_exit() {
-  trap "rm -rf $@" EXIT
-}
-
-# Tab file needs to be piped as stdin
-# Print all alias and correspondent versions in the format "$alias\t$version"
-# Also prints versions as a alias of itself. Eg: "v10.0.0\tv10.0.0"
-filter_version_candidates() {
-  local curr_line= aliases= definitions=
-
-  definitions=$(nodebuild_wrapped --definitions)
-
-  # Skip headers
-  IFS= read -r curr_line
-
-  while IFS= read -r curr_line; do
-    # Just expanding the string should work because tabs are considered array separators
-    local -a fields=($curr_line)
-
-    # Version without `v` prefix
-    local version="${fields[0]#v}"
-    # Lowercase lts codename, `-` if not a lts version
-    local lts_codename=$(echo "${fields[9]}" | tr '[:upper:]' '[:lower:]')
-
-    # If not available in nodebuild skip it
-    if ! grep -q "^$version$" <<< "$definitions"; then
-      continue
-    fi
-
-    if [ "$lts_codename" != - ]; then
-      # No lts read yet, so this must be the more recent
-      if ! grep -q "^lts:" <<< "$aliases"; then
-        printf "lts\t%s\n" "$version"
-        aliases="$aliases"$'\n'"lts:$version"
-      fi
-
-      # No lts read for this codename yet, so this must be the more recent
-      if ! grep -q "^$lts_codename:" <<< "$aliases"; then
-        printf "lts-$lts_codename\t%s\n" "$version"
-        aliases="$aliases"$'\n'"$lts_codename:$version"
-      fi
-    fi
-
-    printf "%s\t%s\n" "$version" "$version"
-  done
-}
-
-versions_cache_dir="$ASDF_NODEJS_CACHE_DIR/versions-tab"
-mkdir -p "$versions_cache_dir"
-
-etag_file="$versions_cache_dir/etag"
-index_file="$versions_cache_dir/index"
-
-print_index_tab(){
-  local temp_headers_file= index= curl_opts=()
-
-  temp_headers_file=$(mktemp)
-  delete_on_exit "$temp_headers_file"
-
-  if [ -r "$etag_file" ]; then
-    curl_opts=(--header "If-None-Match: $(cat "$etag_file")")
-  fi
-
-  index=$(curl --fail --silent --location --dump-header "$temp_headers_file" ${curl_opts+"${curl_opts[@]}"}  "${NODEJS_ORG_MIRROR}index.tab")
-
-  if [ "$index" ]; then
-    awk 'tolower($1) == "etag:" { print $2 }' < "$temp_headers_file" > "$etag_file"
-    printf "%s\n" "$index" > "$index_file"
-  fi
-
-  # The `cat` indirection is for a bash3 printf broken pipe error
-  # https://github.com/asdf-vm/asdf-nodejs/issues/300
-  cat <(filter_version_candidates < "$index_file")
-}
-
 nodebuild_wrapped() {
   "$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-nodebuild.bash" "$@"
+}
+
+try_to_update_nodebuild() {
+  local exit_code=0
+
+  "$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-update-nodebuild.bash" 2>/dev/null || exit_code=$?
+
+  if [ "$exit_code" != 0 ]; then
+    printf "
+$(colored $YELLOW WARNING): Updating node-build failed with exit code %s. The installation will
+try to continue with already installed local defintions. To debug what went
+wrong, try to manually update node-build by running: \`asdf %s update nodebuild\`
+\n" "$exit_code" "$ASDF_NODEJS_PLUGIN_NAME"
+  fi
+}
+
+resolve_version() {
+  local query=
+  query=$(tr '[:upper:]' '[:lower:]' <<<"${1#v}")
+
+  if [[ $query = lts-* ]]; then
+    query=$(tr - / <<<"$query")
+  fi
+
+  local nodejs_codenames=(
+    argon:4
+    boron:6
+    carbon:8
+    dubnium:10
+    erbium:12
+    fermium:14
+    gallium:16
+    hydrogen:18
+  )
+
+  for cod_version in "${nodejs_codenames[@]}"; do
+    local codename="${cod_version%:*}"
+    local version_number="${cod_version#*:}"
+
+    if [ "${query#lts/}" = "$codename" ]; then
+      query="$version_number"
+      break
+    fi
+  done
+
+  if [ "$query" = lts ] || [ "$query" = "lts/*" ]; then
+    query="${nodejs_codenames[${#nodejs_codenames[@]} - 1]#*:}"
+  fi
+
+  if [ "${ASDF_NODEJS_RESOLVE_VERSION_CMD-}" ]; then
+    query=$(bash -c "$ASDF_NODEJS_RESOLVE_VERSION_CMD" -- "$query")
+  fi
+
+  printf "%s\n" "$query"
 }
