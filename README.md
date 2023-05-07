@@ -82,3 +82,13 @@ express
 ```
 
 You can specify a non-default location of this file by setting a `ASDF_NPM_DEFAULT_PACKAGES_FILE` variable.
+
+## Corepack
+
+If you're using Node.js' [corepack](https://nodejs.org/api/corepack.html) to install `yarn` or `pnpm`, you'll need to reshim after running `corepack prepare`, example:
+
+```bash
+corepack enable
+corepack prepare pnpm@latest --activate
+asdf reshim nodejs
+```
