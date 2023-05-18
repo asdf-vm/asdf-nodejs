@@ -22,12 +22,16 @@ When compiling a version from source, you are going to need to install [all requ
 
 `node-build` already has a [handful of settings](https://github.com/nodenv/node-build#custom-build-configuration), in additional to that `asdf-nodejs` has a few extra configuration variables:
 
-- `ASDF_NODEJS_RESOLVE_VERSION_CMD`: Custom script to resolve versions on legacy version files. This is evaluated as a bash script `$1` is the version to be resolved. If you want a quick way to support partial/codename versions check [Partial and codename versions](#partial-and-codename-versions)
+- `ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY`: Enable and choose the strategy for
+  dynamic/partial versions in legacy version files. Either `latest_installed` or
+  `latest_available`. For more info check the [Partial and codename versions](#partial-and-codename-versions) section
 - `ASDF_NODEJS_VERBOSE_INSTALL`: Enables verbose output for downloading and building. Any value different from empty is treated as enabled.
 - `ASDF_NODEJS_FORCE_COMPILE`: Forces compilation from source instead of preferring pre-compiled binaries
 - `ASDF_NODEJS_NODEBUILD_HOME`: Home for the node-build installation, defaults to `$ASDF_DIR/plugins/nodejs/.node-build`, you can install it in another place or share it with your system
 - `ASDF_NODEJS_NODEBUILD`: Path to the node-build executable, defaults to `$ASDF_NODEJS_NODEBUILD_HOME/bin/node-build`
-- `ASDF_NODEJS_SKIP_NODEBUILD_UPDATE`: Skip trying to update nodebuild prior to list-all and install. If enabling this var, you might need to [update nodebuild manually](#manually-updating-node-build-definitions) to get newly released versions
+- `ASDF_NODEJS_SKIP_NODEBUILD_UPDATE`: Skip trying to update nodebuild prior to
+  list-all and install. If enabling this var, you might need to [update nodebuild manually](#manually-updating-node-build-definitions)
+  to get newly released versions
 - `ASDF_NODEJS_CONCURRENCY`: How many jobs should be used in compilation. Defaults to half the computer cores
 - `NODEJS_ORG_MIRROR`: (Legacy) overrides the default mirror used for downloading the distibutions, alternative to the `NODE_BUILD_MIRROR_URL` node-build env var
 
@@ -41,30 +45,52 @@ legacy_version_file = yes
 
 ## Partial and codename versions
 
-Many version managers allow you to use partial versions (e.g. `v10`) or NodeJS codenames (e.g. `lts/hydrogen`) in version files, which are resolved at runtime. However, this can be risky as it is not guaranteed that all developers will use the same version, leading to non-reproducibility. In `asdf`, we prioritize reproducibility, so you cannot use partial versions or codenames in a `.tool-versions` file.
+Many version managers allow you to use partial versions (e.g. `v10`) or NodeJS
+codenames (e.g. `lts/hydrogen`) in version files, which are resolved at runtime.
+However, this can be risky as it is not guaranteed that all developers will use
+the same version, leading to non-reproducibility. In `asdf`, we prioritize
+reproducibility, so you cannot use partial versions or codenames in a
+`.tool-versions` file.
 
-To address this, we offer an escape hatch for legacy version files. If you are comfortable with non-reproducibility issues, you can provide your own resolution script as an environment variable `ASDF_NODEJS_RESOLVE_VERSION_CMD`. You can export this variable from your shell rc file and it will become the default behavior.
+To address this, we offer an escape hatch for legacy version files. If you are
+comfortable with non-reproducibility issues, you can choose between strategies
+in a custom environment variable `ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY`. You
+can export this variable from your shell rc file and it will become the default
+behavior.
 
-It is important to be aware of the risks of non-reproducibility. Debugging can become more challenging and bugs may leak into production if the deployed node version differs from the one used in development. Ideally, maintainers should be encouraged to pin the version to a specific release to avoid these issues.
+> **This option is only available for legacy version files (.nvmrc and
+> .node-version, at the moment), for that you will need to set
+> `legacy_version_file` to `yes` in your .asdfrc config file. More info on the
+> [official docs](https://asdf-vm.com/manage/configuration.html#legacy-version-file)**
+>
+> The `.tool-versions` file will never support non-deterministic versions, if
+> they were supported in the past that was an unintentional side-effect
 
-If non-reproducibility is not a concern for you, you can use one of the following resolve scripts in your shell rc file:
+The possible values for this variable are:
+
+- `latest_installed`: Will get the latest version already installed that matches
+  the version query. Just installing a new version that matches the dynamic
+  version would be enough to update it. If no matching version is installed it
+  fallbacks to the latest version available to download.
+- `latest_available`: Will get the latest version available for installation
+  that matches the version query, this means that when a new NodeJS version gets
+  released you will need to install it before running any command
+
+It is important to be aware of the risks of non-reproducibility. Debugging can
+become more challenging and bugs may leak into production if the deployed node
+version differs from the one used in development. Ideally, maintainers should be
+encouraged to pin the version to a specific release to avoid these issues.
+
+If non-reproducibility is not a concern for you, you can use one of the
+following resolve scripts in your shell rc file:
 
 ```bash
-# This script will always resolve to the latest version of said partial, even if not installed.
-# If a new version is released for that partial/codename, asdf will prompt you to install it.
-export ASDF_NODEJS_RESOLVE_VERSION_CMD='asdf nodejs latest "$1"'
-
-# This script will resolve to the latest *installed* version that satisfies the partial/codename.
-# If new versions that match said partial are released, you need to install them with `asdf install nodejs <version>`.
-# The newly installed version will be picked up automatically.
-export ASDF_NODEJS_RESOLVE_VERSION_CMD='asdf nodejs latest "$1" --installed'
+export ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY=latest_installed
+# OR
+export ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY=latest_available
 ```
 
-These are just examples, and you can provide your own script that resolves to your preferred version.
-
 > **NOTE**: Partial versions and codenames only work for legacy version files: `.node-version` and `.nvmrc`.
-> The `.tool-versions` file will never support non-deterministic versions, if they were supported in the past
-> that was a mistake
 
 ### Default npm Packages
 
