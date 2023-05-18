@@ -17,9 +17,7 @@ function print_only_fully_numeric_items() {
   grep -E '^[0-9.]+$' <<< "$version_numbers"
 }
 
-if ! [ "${ASDF_NODEJS_SKIP_NODEBUILD_UPDATE-}" ]; then
-  try_to_update_nodebuild >&2
-fi
+try_to_update_nodebuild >&2
 
 all_definitions_from_node_build="$(nodebuild_wrapped --definitions)"
 

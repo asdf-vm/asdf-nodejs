@@ -15,9 +15,7 @@ install_nodejs() {
     args+=(-c)
   fi
 
-  if ! [ "${ASDF_NODEJS_SKIP_NODEBUILD_UPDATE-}" ]; then
-    try_to_update_nodebuild
-  fi
+  try_to_update_nodebuild
 
   NODE_BUILD_CACHE_PATH="${NODE_BUILD_CACHE_PATH:-$ASDF_DOWNLOAD_PATH}" \
     nodebuild_wrapped ${args+"${args[@]}"} "$version" "$install_path"
