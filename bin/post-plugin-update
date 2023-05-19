@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+# shellcheck source=../lib/utils.sh
+source "$(dirname "$0")/../lib/utils.sh"
+
+migrate_aliases_mechanism() {
+	local inst=
+	for inst in "$(asdf_data_dir)/installs/nodejs/"*; do
+		if [[ "$(basename "$inst")" = lts* && -L "$inst" ]]; then
+			rm "$inst"
+		fi
+	done
+}
+
+migrate() {
+	migrate_aliases_mechanism
+}
+
+migrate
