@@ -17,12 +17,11 @@ function print_only_fully_numeric_items() {
   grep -E '^[0-9.]+$' <<< "$version_numbers"
 }
 
-"$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-update-nodebuild.bash" &> /dev/null
+try_to_update_nodebuild >&2
 
 all_definitions_from_node_build="$(nodebuild_wrapped --definitions)"
 
 # Print
 echo $(
   print_only_fully_numeric_items "$all_definitions_from_node_build"
-  printf "%s\n" lts-{argon,boron,carbon,dubnium,erbium,fermium,gallium,hydrogen} lts
 )
