@@ -104,9 +104,12 @@ resolve_legacy_version() {
 
   if [ "$resolved" ]; then
     printf "%s\n" "$resolved"
-  else
+  elif [ "$strategy" != latest_available ]; then
     # If no version is installed, fallback to latest_available, so `asdf install nodejs` works
     resolve_legacy_version latest_available "$query"
+  else
+    # Give up and pretty the query itself
+    printf "%s\n" "$query"
   fi
 }
 
