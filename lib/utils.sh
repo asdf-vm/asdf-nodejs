@@ -84,7 +84,7 @@ resolve_legacy_version() {
   case "$strategy" in
   latest_installed)
     _list() {
-      ASDF_NODEJS_SKIP_NODEBUILD_UPDATE=1 list_installed_versions nodejs
+      ASDF_NODEJS_SKIP_NODEBUILD_UPDATE=1 list_installed_versions nodejs | sort -V
     }
     ;;
 
