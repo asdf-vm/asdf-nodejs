@@ -140,14 +140,19 @@ In the past `asdf-nodejs` checked for signatures and integrity by querying live 
 
 ### Resolving latest available LTS version in a script
 
-This plugin adds custom subcommand `asdf nodejs resolve lts`. If you want to know what is the latest available LTS major version number you can do this:
+This plugin adds a custom subcommand `asdf nodejs resolve lts`. If you want to know what is the latest available LTS major version number you can do this:
 ```sh
-$ asdf nodejs resolve lts
-18
-```
+# Before checking for aliases, update nodebuild to check for newly releasead versions
+asdf nodejs update-nodebuild
 
-And then to get the latest full version string of the 18 LTS (as of May 2023)
-```sh
-$ asdf latest nodejs $(asdf nodejs resolve lts)
-18.16.0
+asdf nodejs resolve lts
+# outputs: 18.16.0
+```
+You also have the option of forcing a resolution strategy by using the flags `--latest-installed` and `--latest-available`
+```bash
+# Outputs the latest version installed locally which is a LTS
+asdf nodejs resolve lts --latest-installed
+
+# Outputs the latest version available for download which is a LTS
+asdf nodejs resolve lts --latest-avaliable
 ```
