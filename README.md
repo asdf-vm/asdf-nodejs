@@ -137,3 +137,22 @@ asdf nodejs update-nodebuild
 ### Integrity/signature check
 
 In the past `asdf-nodejs` checked for signatures and integrity by querying live keyservers. `node-build`, on the other hand, checks integrity by precomputing checksums ahead of time and versioning them together with the instructions for building them, making the process a lot more streamlined.
+
+### Resolving latest available LTS version in a script
+
+This plugin adds a custom subcommand `asdf nodejs resolve lts`. If you want to know what is the latest available LTS major version number you can do this:
+```sh
+# Before checking for aliases, update nodebuild to check for newly releasead versions
+asdf nodejs update-nodebuild
+
+asdf nodejs resolve lts
+# outputs: 18.16.0
+```
+You also have the option of forcing a resolution strategy by using the flags `--latest-installed` and `--latest-available`
+```bash
+# Outputs the latest version installed locally which is a LTS
+asdf nodejs resolve lts --latest-installed
+
+# Outputs the latest version available for download which is a LTS
+asdf nodejs resolve lts --latest-avaliable
+```
