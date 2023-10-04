@@ -154,5 +154,5 @@ You also have the option of forcing a resolution strategy by using the flags `--
 asdf nodejs resolve lts --latest-installed
 
 # Outputs the latest version available for download which is a LTS
-asdf nodejs resolve lts --latest-avaliable
+asdf nodejs resolve lts --latest-available
 ```
