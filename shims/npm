@@ -11,7 +11,7 @@ plugin_name=$(basename "$(dirname "$this_dir")")
 
 this_dir=$(cd "$this_dir" && pwd -P) # Normalizes the directory
 
-asdf_data_dir=$(cd "${ASDF_DATA_DIR:-$HOME/.asdf}" && pwd -P)
+asdf_data_dir=$(cd "${ASDF_DATA_DIR:-${HOME:-}/.asdf}" 2> /dev/null && pwd -P || true)
 asdf_shims_dir="$asdf_data_dir/shims"
 
 plugin_dir="$asdf_data_dir/plugins/$plugin_name"
