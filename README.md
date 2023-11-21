@@ -156,3 +156,13 @@ asdf nodejs resolve lts --latest-installed
 # Outputs the latest version available for download which is a LTS
 asdf nodejs resolve lts --latest-available
 ```
+
+## Corepack
+
+If you're using Node.js' [corepack](https://nodejs.org/api/corepack.html) to install `yarn` or `pnpm`, you'll need to reshim after running `corepack prepare`, example:
+
+```bash
+corepack enable
+corepack prepare pnpm@latest --activate
+asdf reshim nodejs
+```
