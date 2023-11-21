@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
-echo $(
-  sed '1 s/^v//; s/^lts\//lts-/; s/^lts-\*$/lts/' "$1"
-)
+
+set -eu -o pipefail
+
+# shellcheck source=../lib/utils.sh
+source "$(dirname "$0")/../lib/utils.sh"
+
+resolve_version "$(cat "$1")"
