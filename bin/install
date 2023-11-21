@@ -51,4 +51,4 @@ install_nodejs "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
 install_default_npm_packages \
   || printf "\n$(colored $YELLOW WARNING:) An error occurred when installing the default npm packages, but Node's installation succeeded\n"
 
-asdf reshim "$(plugin_name)" "$ASDF_INSTALL_VERSION"
+$ASDF_DIR/bin/asdf reshim "$(plugin_name)" "$ASDF_INSTALL_VERSION"

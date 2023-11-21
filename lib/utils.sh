@@ -8,6 +8,7 @@ if [ ${NODEJS_ORG_MIRROR: -1} != / ]; then
 fi
 
 export ASDF_NODEJS_PLUGIN_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+export ASDF_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)
 
 # TODO: Replace with an asdf variable once asdf starts providing the plugin name
 # as a variable
