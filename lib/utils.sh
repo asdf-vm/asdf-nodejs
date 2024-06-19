@@ -130,6 +130,7 @@ resolve_version() {
     fermium:14
     gallium:16
     hydrogen:18
+    iron:20
   )
 
   for cod_version in "${nodejs_codenames[@]}"; do
