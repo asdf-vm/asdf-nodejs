@@ -21,6 +21,16 @@ install_nodejs() {
     nodebuild_wrapped ${args+"${args[@]}"} "$version" "$install_path"
 }
 
+_run_for_installation() {
+  (
+    if [ -r "$ASDF_NODEJS_PLUGIN_DIR/bin/exec-env" ]; then
+      . "$ASDF_NODEJS_PLUGIN_DIR/bin/exec-env"
+    fi
+
+    env PATH="$ASDF_INSTALL_PATH/bin:$PATH" "$@"
+  )
+}
+
 
 install_default_npm_packages() {
   local default_npm_packages_file="${ASDF_NPM_DEFAULT_PACKAGES_FILE:=$HOME/.default-npm-packages}" filtered_packages=
@@ -36,13 +46,13 @@ install_default_npm_packages() {
     xargs printf "%s, " <<< "$filtered_packages"
     printf "\x8\x8 \n" # Cleanup last comma
 
-    (
-      if [ -r "$ASDF_NODEJS_PLUGIN_DIR/bin/exec-env" ]; then
-        . "$ASDF_NODEJS_PLUGIN_DIR/bin/exec-env"
-      fi
+    _run_for_installation xargs npm install -g <<< "$filtered_packages"
+  fi
+}
 
-      xargs env PATH="$ASDF_INSTALL_PATH/bin:$PATH" npm install -g <<< "$filtered_packages"
-    )
+enable_corepack() {
+  if [ "${ASDF_NODEJS_AUTO_ENABLE_COREPACK-}" ]; then
+    _run_for_installation corepack enable
   fi
 }
 
@@ -50,5 +60,8 @@ install_nodejs "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
 
 install_default_npm_packages \
   || printf "\n$(colored $YELLOW WARNING:) An error occurred when installing the default npm packages, but Node's installation succeeded\n"
+
+enable_corepack \
+  || printf "\n$(colored $YELLOW WARNING:) An error occurred while enabling corepack for this version\n"
 
 asdf reshim "$(plugin_name)" "$ASDF_INSTALL_VERSION"
