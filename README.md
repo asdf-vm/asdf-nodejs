@@ -25,6 +25,7 @@ When compiling a version from source, you are going to need to install [all requ
 - `ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY`: Enable and choose the strategy for
   dynamic/partial versions in legacy version files. Either `latest_installed` or
   `latest_available`. For more info check the [Partial and codename versions](#partial-and-codename-versions) section
+- `ASDF_NODEJS_AUTO_ENABLE_COREPACK`: Enable corepack for new installations. Defaults to empty
 - `ASDF_NODEJS_VERBOSE_INSTALL`: Enables verbose output for downloading and building. Any value different from empty is treated as enabled.
 - `ASDF_NODEJS_FORCE_COMPILE`: Forces compilation from source instead of preferring pre-compiled binaries
 - `ASDF_NODEJS_NODEBUILD_HOME`: Home for the node-build installation, defaults to `$ASDF_DIR/plugins/nodejs/.node-build`, you can install it in another place or share it with your system
