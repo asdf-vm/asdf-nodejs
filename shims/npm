@@ -89,6 +89,23 @@ resolve_canon_npm() {
   printf "%s\n" "$npm_location"
 }
 
+resolve_canon_npx() {
+  local npx_location=
+
+  # Try searching in current path (asdf core from 0.7 onwards adds all binaries candidates directories to PATH)
+  # if that doesn't works (when calling the shim directly for example) it tries manually searching the binary in
+  # the installed version provided by "asdf where"
+  npx_location="${ASDF_NODEJS_CANON_NPX_PATH:-$(search_npx_on_current_path || manually_search_npx_bin)}"
+
+  if ! [ "$npx_location" ]; then
+    printf "asdf-nodejs couldn't find a suitable npx executable\n"
+    printf "This is probably a problem with the plugin, please report this issue at https://github.com/asdf-vm/asdf-nodejs/issues\n"
+    exit 1
+  fi
+
+  printf "%s\n" "$npx_location"
+}
+
 remove_current_dir_from_path() {
   local filtered_path= dir= normalized_dir=
 
@@ -116,6 +133,15 @@ search_npm_on_current_path() {
   PATH="$filtered_path" command -v npm
 }
 
+search_npx_on_current_path() {
+  local filtered_path=
+
+  # Tries to prevent recursion by removing the current script and asdf-shim from PATH
+  filtered_path=$(remove_current_dir_from_path)
+
+  PATH="$filtered_path" command -v npx
+}
+
 manually_search_npm_bin() {
   local installed_dir= bin_directories=
 
@@ -136,6 +162,26 @@ manually_search_npm_bin() {
   return 1
 }
 
+manually_search_npx_bin() {
+  local installed_dir= bin_directories=
+
+  installed_dir=$(asdf where nodejs)
+  bin_directories=(bin)
+
+  if [ -x "$plugin_dir/bin/list-bin-paths" ]; then
+    bin_directories=($("$plugin_dir/bin/list-bin-paths"))
+  fi
+
+  for bin_dir in "${bin_directories[@]}"; do
+    if [ -x "$installed_dir/$bin_dir/npx" ]; then
+      printf "%s\n" "$installed_dir/$bin_dir/npx" 
+      return 0
+    fi
+  done
+
+  return 1
+}
+
 wrap_npm_if_reshim_is_needed() {
   local npm=
   npm=$(resolve_canon_npm)
@@ -146,6 +192,19 @@ wrap_npm_if_reshim_is_needed() {
     asdf reshim "$plugin_name"
   else
     exec "$npm" "$@"
+  fi
+}
+
+wrap_npx_if_reshim_is_needed() {
+  local npx=
+  npx=$(resolve_canon_npx)
+
+  if should_reshim "$@"; then
+    "$npx" "$@"
+    printf "Reshimming asdf %s...\n" "$plugin_name" >&2
+    asdf reshim "$plugin_name"
+  else
+    exec "$npx" "$@"
   fi
 }
 

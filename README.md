@@ -167,3 +167,19 @@ corepack enable
 corepack prepare pnpm@latest --activate
 asdf reshim nodejs
 ```
+
+### npx Command Resolution
+
+The `npx` command now works as expected with `asdf`. The `npx` command correctly recognizes the version of Node.js set by `asdf` and no longer fails to find the correct version of Node.js when invoked with a command. The issue related to global packages installed under a different version of Node.js has been resolved. The `npx` command now works through the `asdf` shim without any issues.
+
+To use the `npx` command with `asdf`, simply invoke it as you would normally:
+
+```bash
+npx create-react-app my-app
+```
+
+If you encounter any issues with the `npx` command, ensure that you have the correct version of Node.js set in your `.tool-versions` file and that you have reshimmmed after any changes:
+
+```bash
+asdf reshim nodejs
+```

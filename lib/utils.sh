@@ -160,3 +160,16 @@ resolve_version() {
 
   printf "%s\n" "$query"
 }
+
+resolve_npx_command() {
+  local npx_command_path
+
+  npx_command_path=$(command -v npx)
+
+  if [ -x "$npx_command_path" ]; then
+    printf "%s\n" "$npx_command_path"
+  else
+    printf "npx command not found\n"
+    exit 1
+  fi
+}
