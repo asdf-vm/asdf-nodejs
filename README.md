@@ -148,7 +148,7 @@ This plugin adds a custom subcommand `asdf cmd nodejs resolve lts`. If you want 
 asdf cmd nodejs update-nodebuild
 
 asdf cmd nodejs resolve lts
-# outputs: 22.11.0
+# outputs: 22.13.1
 ```
 
 You also have the option of forcing a resolution strategy by using the flags `--latest-installed` and `--latest-available`
