@@ -5,7 +5,7 @@ set -eu -o pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../utils.sh"
 
 # Use a local variable for concurrency calculation
-local_concurrency="${ASDF_CONCURRENCY}"
+local_concurrency="${ASDF_CONCURRENCY:-auto}"
 
 # If ASDF_CONCURRENCY is "auto" or not set, determine the number of CPU cores
 if [[ "${local_concurrency:-auto}" == "auto" || -z "${local_concurrency}" ]]; then
