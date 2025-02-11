@@ -41,7 +41,7 @@ colored() {
 export RED=31 GREEN=32 YELLOW=33 BLUE=34 MAGENTA=35 CYAN=36
 
 nodebuild_wrapped() {
-  "$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-nodebuild.bash" "$@"
+  "$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-nodebuild" "$@"
 }
 
 try_to_update_nodebuild() {
@@ -51,7 +51,7 @@ try_to_update_nodebuild() {
 
   local exit_code=0
 
-  "$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-update-nodebuild.bash" 2>/dev/null || exit_code=$?
+  "$ASDF_NODEJS_PLUGIN_DIR/lib/commands/command-update-nodebuild" 2>/dev/null || exit_code=$?
 
   if [ "$exit_code" != 0 ]; then
     printf "
@@ -152,6 +152,9 @@ resolve_version() {
 
   if [ "$query" = lts ] || [ "$query" = "lts/*" ]; then
     query="${nodejs_codenames[${#nodejs_codenames[@]} - 1]#*:}"
+    local all_versions
+    all_versions=$("$ASDF_NODEJS_PLUGIN_DIR/bin/list-all" 2>/dev/null | tr ' ' '\n')
+    query=$(echo "$all_versions" | grep "^$query\." | tail -n1)
   fi
 
   if [ "${ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY-}" ]; then
