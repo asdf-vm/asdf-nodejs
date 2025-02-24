@@ -4,8 +4,28 @@ set -eu -o pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../utils.sh"
 
-: "${ASDF_NODEJS_NODEBUILD_HOME=$ASDF_NODEJS_PLUGIN_DIR/.node-build}"
-: "${ASDF_NODEJS_CONCURRENCY=$(((${ASDF_CONCURRENCY:-1} + 1) / 2))}"
+# Use a local variable for concurrency calculation
+local_concurrency="${ASDF_CONCURRENCY:-auto}"
+
+# If ASDF_CONCURRENCY is "auto" or not set, determine the number of CPU cores
+if [[ "${local_concurrency:-auto}" == "auto" || -z "${local_concurrency}" ]]; then
+  if command -v nproc >/dev/null 2>&1; then
+    local_concurrency=$(nproc)
+  elif [[ "$(uname)" == "Darwin" ]]; then
+    local_concurrency=$(sysctl -n hw.ncpu)
+  else
+    local_concurrency=1 # Fallback if detection fails
+  fi
+fi
+
+# Ensure ASDF_NODEJS_PLUGIN_DIR is set
+ASDF_NODEJS_PLUGIN_DIR="${ASDF_NODEJS_PLUGIN_DIR:-$HOME/.asdf/plugins/nodejs}"
+
+# Set ASDF_NODEJS_NODEBUILD_HOME, ensuring it defaults properly
+ASDF_NODEJS_NODEBUILD_HOME="${ASDF_NODEJS_NODEBUILD_HOME:-$ASDF_NODEJS_PLUGIN_DIR/.node-build}"
+
+# Calculate ASDF_NODEJS_CONCURRENCY based on local_concurrency
+ASDF_NODEJS_CONCURRENCY=$(((local_concurrency + 1) / 2))
 
 # node-build environment variables being overriden by asdf-nodejs
 export NODE_BUILD_CACHE_PATH="${NODE_BUILD_CACHE_PATH:-$ASDF_NODEJS_CACHE_DIR/node-build}"
@@ -19,7 +39,7 @@ if [[ "${ASDF_NODEJS_CONCURRENCY-}" =~ ^[0-9]+$ ]]; then
   export NODE_MAKE_OPTS="${NODE_MAKE_OPTS:-} -j$ASDF_NODEJS_CONCURRENCY"
 fi
 
-nodebuild="${ASDF_NODEJS_NODEBUILD:-$ASDF_NODEJS_NODEBUILD_HOME/bin/node-build}" 
+nodebuild="${ASDF_NODEJS_NODEBUILD:-$ASDF_NODEJS_NODEBUILD_HOME/bin/node-build}"
 args=()
 
 if ! [ -x "$nodebuild" ]; then
