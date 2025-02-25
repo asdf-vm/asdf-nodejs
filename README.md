@@ -110,7 +110,7 @@ You can specify a non-default location of this file by setting a `ASDF_NPM_DEFAU
 We provide a command for running the installed `node-build` command:
 
 ```bash
-asdf nodejs nodebuild --version
+asdf cmd nodejs nodebuild --version
 ```
 
 ### node-build advanced variations
@@ -122,7 +122,7 @@ Some of them will work out of the box, and some will need a bit of investigation
 To list all the available variations run:
 
 ```bash
-asdf nodejs nodebuild --definitions
+asdf cmd nodejs nodebuild --definitions
 ```
 
 _Note that this command only lists the current `node-build` definitions. You might want to [update the local `node-build` repository](#updating-node-build-definitions) before listing them._
@@ -132,7 +132,7 @@ _Note that this command only lists the current `node-build` definitions. You mig
 Every new node version needs to have a definition file in the `node-build` repository. `asdf-nodejs` already tries to update `node-build` on every new version installation, but if you want to update `node-build` manually for some reason we provide a command just for that:
 
 ```bash
-asdf nodejs update-nodebuild
+asdf cmd nodejs update-nodebuild
 ```
 
 ### Integrity/signature check
@@ -141,21 +141,24 @@ In the past `asdf-nodejs` checked for signatures and integrity by querying live 
 
 ### Resolving latest available LTS version in a script
 
-This plugin adds a custom subcommand `asdf nodejs resolve lts`. If you want to know what is the latest available LTS major version number you can do this:
+This plugin adds a custom subcommand `asdf cmd nodejs resolve lts`. If you want to know what is the latest available LTS major version number you can do this:
+
 ```sh
 # Before checking for aliases, update nodebuild to check for newly releasead versions
-asdf nodejs update-nodebuild
+asdf cmd nodejs update-nodebuild
 
-asdf nodejs resolve lts
-# outputs: 22.11.0
+asdf cmd nodejs resolve lts
+# outputs: 22.13.1
 ```
+
 You also have the option of forcing a resolution strategy by using the flags `--latest-installed` and `--latest-available`
+
 ```bash
 # Outputs the latest version installed locally which is a LTS
-asdf nodejs resolve lts --latest-installed
+asdf cmd nodejs resolve lts --latest-installed
 
 # Outputs the latest version available for download which is a LTS
-asdf nodejs resolve lts --latest-available
+asdf cmd nodejs resolve lts --latest-available
 ```
 
 ## Corepack
