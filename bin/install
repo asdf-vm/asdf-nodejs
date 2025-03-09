@@ -33,20 +33,49 @@ _run_for_installation() {
 
 
 install_default_npm_packages() {
-  local default_npm_packages_file="${ASDF_NPM_DEFAULT_PACKAGES_FILE:=$HOME/.default-npm-packages}" filtered_packages=
+  local pkgs_file="${ASDF_NPM_DEFAULT_PACKAGES_FILE:=$HOME/.default-npm-packages}"
 
-  if ! [ -f "$default_npm_packages_file" ]; then
+  if ! [ -f "$pkgs_file" ]; then
     return 0
   fi
 
-  filtered_packages=$(grep -vE "^\s*#" < "$default_npm_packages_file")
+  npm_install() {
+    printf "$(colored $CYAN "\nRunning the folowing install command:\n")"
+    printf "$(colored $GREEN "  \$ npm install -g %s\n")" "$*"
 
-  if [ "${filtered_packages-}" ]; then
-    printf "$(colored $CYAN "Installing the following default packages globally: ")"
-    xargs printf "%s, " <<< "$filtered_packages"
-    printf "\x8\x8 \n" # Cleanup last comma
+    _run_for_installation npm install -g "$@"
+  }
 
-    _run_for_installation xargs npm install -g <<< "$filtered_packages"
+  local args=()
+
+  local line="" aux=()
+  while read -r line; do
+    pkg_lines+=("$line")
+
+    case "$line" in
+      *' -'*|-*)
+        # Installing previously read packages
+        if [ "${#args[@]}" -gt 0 ]; then
+          npm_install "${args[@]}"
+        fi
+
+        # Read current line as a command by itself
+        args=()
+        IFS=' ' read -ra args <<< "$line"
+
+        npm_install "${args[@]}"
+        args=()
+        ;;
+      *)
+        # Accumulate packages to install
+        IFS=' ' read -ra aux <<< "$line"
+        args+=("${aux[@]}")
+        ;;
+    esac
+  done < <(grep -v '^\s*#' "$pkgs_file")
+
+  if [ "${#args[@]}" -gt 0 ]; then
+    npm_install "${args[@]}"
   fi
 }
 
