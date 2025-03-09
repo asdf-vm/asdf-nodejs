@@ -9,7 +9,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../utils.sh"
 : "${ASDF_NODEJS_NODEBUILD_BRANCH=main}"
 
 ensure_updated_project() {
-  local pull_exit_code=0 output=
+  local pull_exit_code=0 output=''
 
   if ! [ -d "$ASDF_NODEJS_NODEBUILD_HOME" ]; then
     printf "Cloning node-build...\n"
@@ -26,6 +26,10 @@ ensure_updated_project() {
       printf "Please check if the git repository at %s doesn't have any changes or anything\nthat might not allow a git pull\n" "$ASDF_NODEJS_NODEBUILD_HOME" >&2
       exit $pull_exit_code
     fi
+
+    # For some time, asdf-core was cleaning up the node-build directory by accident
+    # This is a workaround to restore the files that were deleted
+    git -C "$ASDF_NODEJS_NODEBUILD_HOME" checkout HEAD .
 
     printf " ok\n"
   fi
