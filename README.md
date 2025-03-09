@@ -101,6 +101,9 @@ export ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY=latest_available
 lodash
 request
 express
+
+# .default-npm-packages can have comments, and option flags:
+zx --registry=https://registry.yarnpkg.com/
 ```
 
 You can specify a non-default location of this file by setting a `ASDF_NPM_DEFAULT_PACKAGES_FILE` variable.
