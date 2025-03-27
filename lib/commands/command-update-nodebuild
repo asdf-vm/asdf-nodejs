@@ -18,6 +18,7 @@ ensure_updated_project() {
     printf "Trying to update node-build..."
     git -C "$ASDF_NODEJS_NODEBUILD_HOME" fetch origin "$ASDF_NODEJS_NODEBUILD_BRANCH" >&2 || pull_exit_code=$?
     git -C "$ASDF_NODEJS_NODEBUILD_HOME" checkout "$ASDF_NODEJS_NODEBUILD_BRANCH" >&2 || true
+    git -C "$ASDF_NODEJS_NODEBUILD_HOME" merge --ff-only "origin/$ASDF_NODEJS_NODEBUILD_BRANCH" >&2 || true
 
     if [ "$pull_exit_code" != 0 ]; then
       printf "$(colored $RED ERROR): Pulling the node-build repository exited with code %s\n" "$pull_exit_code"
