@@ -128,7 +128,7 @@ manually_search_npm_bin() {
 
   for bin_dir in "${bin_directories[@]}"; do
     if [ -x "$installed_dir/$bin_dir/npm" ]; then
-      printf "%s\n" "$installed_dir/$bin_dir/npm" 
+      printf "%s\n" "$installed_dir/$bin_dir/npm"
       return 0
     fi
   done
