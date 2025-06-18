@@ -47,9 +47,12 @@ install_default_npm_packages() {
   }
 
   local args=()
-
   local line="" aux=()
   while read -r line; do
+    if [[ -z "$line" ]]; then
+      continue
+    fi
+
     pkg_lines+=("$line")
 
     case "$line" in
