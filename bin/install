@@ -48,20 +48,13 @@ install_default_npm_packages() {
 
   local args=()
   local line="" aux=()
-  local printed_empty_lines_warn=0 
   while read -r line; do
     if [[ -z "$line" ]]; then
-      # Ignore empty lines and print warning
-      if [ "$printed_empty_lines_warn" -eq 0 ]; then
-        echo "$(colored $YELLOW WARNING:) There are empty line ${pkgs_file}"
-        printed_empty_lines_warn=1
-      fi
-
-      continue 
+      continue
     fi
 
     pkg_lines+=("$line")
-    
+
     case "$line" in
       *' -'*|-*)
         # Installing previously read packages
