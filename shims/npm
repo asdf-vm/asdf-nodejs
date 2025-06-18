@@ -78,7 +78,7 @@ resolve_canon_npm() {
   # Try searching in current path (asdf core from 0.7 onwards adds all binaries candidates directories to PATH)
   # if that doesn't works (when calling the shim directly for example) it tries manually searching the binary in
   # the installed version provided by "asdf where"
-  npm_location="${ASDF_NODEJS_CANON_NPM_PATH:-$(search_npm_on_current_path || manually_search_npm_bin)}"
+  npm_location="${ASDF_NODEJS_CANON_NPM_PATH:-$(manually_search_npm_bin || search_npm_on_current_path)}"
 
   if ! [ "$npm_location" ]; then
     printf "asdf-nodejs couldn't find a suitable npm executable\n"
@@ -128,7 +128,7 @@ manually_search_npm_bin() {
 
   for bin_dir in "${bin_directories[@]}"; do
     if [ -x "$installed_dir/$bin_dir/npm" ]; then
-      printf "%s\n" "$installed_dir/$bin_dir/npm" 
+      printf "%s\n" "$installed_dir/$bin_dir/npm"
       return 0
     fi
   done
