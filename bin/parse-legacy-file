@@ -5,4 +5,4 @@ set -eu -o pipefail
 # shellcheck source=../lib/utils.sh
 source "$(dirname "$0")/../lib/utils.sh"
 
-resolve_version "$(cat "$1")"
+resolve_version "$(head -n 1 "$1")"
