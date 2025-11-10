@@ -138,6 +138,7 @@ resolve_version() {
     hydrogen:18
     iron:20
     jod:22
+    krypton:24
   )
 
   for cod_version in "${nodejs_codenames[@]}"; do
