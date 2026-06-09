@@ -113,7 +113,7 @@ You can specify a non-default location of this file by setting a `ASDF_NPM_DEFAU
 We provide a command for running the installed `node-build` command:
 
 ```bash
-asdf cmd nodejs nodebuild --version
+asdf cmd nodejs nodebuild -- --version
 ```
 
 ### node-build advanced variations
@@ -125,7 +125,7 @@ Some of them will work out of the box, and some will need a bit of investigation
 To list all the available variations run:
 
 ```bash
-asdf cmd nodejs nodebuild --definitions
+asdf cmd nodejs nodebuild -- --definitions
 ```
 
 _Note that this command only lists the current `node-build` definitions. You might want to [update the local `node-build` repository](#updating-node-build-definitions) before listing them._
